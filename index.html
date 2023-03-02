@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="dist/ecg-pacer-app.min.js"></script>
+    <link rel="stylesheet" href="dist/css/styles.css">
+  </head>
+  <body>
+    <section id="mon-area">
+
+      <div class="monitor-row row">
+        <canvas id="canvashr" class="mon-graph"></canvas>
+        <div id="hr_display" class="mon-display">
+          <p class="label">HR</p>
+          <p class="value" id="hr_display_v">120</p>
+          <p class="units">BPM</p>
+        </div>
+      </div>
+    
+      <div class="monitor-row row">
+        <canvas id="canvasbp" class="mon-graph"></canvas>
+        <div id="bp_display" class="mon-display">
+          <p class="label">BP</p>
+          <p><span class="value" id="sys_display_v">100</span>/ <span class="value" id="dia_display_v">80</span></p>
+          <p class="units">mmHG</p>
+        </div>
+      </div>
+    
+      <div class="chart-controls row">
+        <button id="playpause_btn">Play/Pause</button>
+        <div>
+          <label>Scale X (seconds)</label>
+          <input id="nX" type="number" min="1" max="10" step="1" value="5">
+        </div>
+      </div>
+    </section>
+    
+    <section id="pacer-controls">
+      <div class="row">
+        <span><label title="P fired">P</label><input id="p_detect" type="radio" disabled></span>
+        <span>
+          <label title="Signal sensed">S</label><input id="s_detect" type="radio" disabled>
+        </span>
+      </div>
+      <hr />
+      <div class="row">
+        <label>MODE PRESETS</label>
+        <select name="Pacer Mode" id="pacer_mode">
+          <option value="aai">AAI</option>
+          <option value="vvi">VVI</option>
+          <option value="ddd">DDD</option>
+          <option value="ddo" selected>DOO</option>
+        </select>
+    
+      </div>
+      <hr />
+      <div class="row">
+        <label>Rate</label>
+        <input id="pacer_rate" type="number" min="30" max="240" step="1" value="0">
+        <span>bpm</span>
+      </div>
+      <div class="row">
+        <label>A output</label>
+        <input id="a_out" type="number" min="0" max="20" step="1" value="0">
+        <span>mA</span>
+      </div>
+      <div class="row">
+        <label>V output</label>
+        <input id="v_out" type="number" min="0" max="25" step="1" value="0">
+        <span>mA</span>
+      </div>
+      <hr />
+      <div class="row">
+        <label>A Sensitivity</label>
+        <input id="a_sense" type="number" min="0" max="10" step="1" value="0">
+        <span>mV</span>
+      </div>
+      <div class="row">
+        <label>V Sensitivity</label>
+        <input id="v_sense" type="number" min="0" max="10" step="1" value="0">
+        <span>mV</span>
+      </div>
+    </section>
+    
+    <section id="setup-area">
+      <table class="data-table">
+        <button title="Reset to default values" id="reset_btn">Reset &#8634;</button>
+        <button title="Minimize settings panel" id="hide_settings_btn">&#9715;</button>
+        <tbody>
+          <!-- Butons -->
+    
+          <tr>
+            <th colspan="4">Innate Rhythm Settings</th>
+          </tr>
+    
+          <tr>
+    
+            <td>SN rate (bpm)</td>
+            <td>
+              <input id="snr_v" type="number" min="0" max="240" step="1" value="80">
+              <br />
+              irregular?<input id="snr_cb" type="checkbox"></td>
+            <td>AV rate(bpm)</td>
+            <td>
+              <input id="avr_v" type="number" min="0" max="240" step="1" value="80">
+              <br />
+              irregular?<input id="avr_cb" type="checkbox"></td>
+    
+          </tr>
+          <tr>
+            <th colspan=4></th>
+          </tr>
+          <tr>
+            <td>P height</td>
+            <td><input id="p_h" type="number" min="-2" max="2" step="0.1" value="1"></td>
+            <td>QRS height</td>
+            <td><input id="qrs_h" type="number" min="-2" max="2" step="0.1" value="1"></td>
+          </tr>
+    
+          <tr>
+            <td title="Set PR interval multiplier">PR segment</td>
+            <td><input id="pr_v" type="number" min="-1" max="2" step=".1" value="1"></td>
+            <td>QRS duration</td>
+            <td><input id="qrs_w" type="number" min="0" max="10" step="0.1" value="1"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              increasing?<input id="pr_cb" type="checkbox">
+            </td>
+            <td title="Drop QRST at drop number.">QRS drop</td>
+            <td>
+              <input id="qrs_n" type="number" min="0" max="20" step="1" value="0">
+              <br />random? <input id="qrs_cb" type="checkbox">
+            </td>
+          </tr>
+    
+          <tr>
+            <td>ST segment</td>
+            <td><input id="st_v" type="number" min="-2" max="2" step=".1" value="1"></td>
+            <td>T duration</td>
+            <td><input id="t_w" type="number" min="0" max="3" step=".1" value="1"></td>
+          </tr>
+          <tr title="Preset innate rhyths">
+            <th colspan="4">
+              <hr />Presets</th>
+          </tr>
+    
+          <tr>
+            <td colspan="4">
+              <select name="innate selections" id="innate-sel">
+                <option value="normal" selected="selected">Normal Sinus Rhythm</option>
+                <option value="2ndavb1">2nd AV Block I</option>
+                <option value="2ndavb2">2nd AV Block II</option>
+                <option value="3rdavb">3rd AV Block</option>
+                <option value="junctionalbd">Junctional Bradycardia</option>
+                <option value="ventescape">Ventricular Escape</option>
+              </select>
+            </td>
+          </tr>
+          
+          <tr title="Pacer pulse triggers response only if sensitivity below threshold">
+            <th colspan="4">
+              <hr />Stimulation threshold</th>
+          </tr>
+    
+          <tr title="Pacer pulse triggers response only if output above threshold">
+            <td>A (mA)</td>
+            <td><input id="a_out_min" type="number" min="0" max="100" step="1" value="0"></td>
+            <td>V (mA)</td>
+            <td><input id="v_out_min" type="number" min="0" max="100" step="1" value="0"></td>
+          </tr>
+    
+          <!-- bp fields -->
+          <tr>
+            <th colspan="4">
+              <hr />Blood pressure (mmHg)</th>
+          </tr>
+    
+          <tr>
+            <td>Systolic.</td>
+            <td><input id="sys_v" type="number" min="30" max="240" step="1" value="100"></td>
+            <td>Diastolic.</td>
+            <td><input id="dia_v" type="number" min="30" max="240" step="1" value="80"></td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </section>
+    
+  </body>
+</html>
