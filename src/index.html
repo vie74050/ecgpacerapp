@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
+  <head><link rel="icon" href="data:;base64,iVBORw0KGgo="></head>
   <body>
     <section id="mon-area">
 
@@ -40,39 +40,45 @@
       </div>
       <hr />
       <div class="row">
-        <label>MODE PRESETS</label>
+        <h4>MODE</h4>
         <select name="Pacer Mode" id="pacer_mode">
           <option value="aai">AAI</option>
           <option value="vvi">VVI</option>
           <option value="ddd">DDD</option>
-          <option value="ddo" selected>DOO</option>
+          <option value="doo" selected>DOO</option>
         </select>
     
       </div>
       <hr />
+      <div class="row">
+        <h4>Output</h4>
+      </div>
       <div class="row">
         <label>Rate</label>
         <input id="pacer_rate" type="number" min="30" max="240" step="1" value="0">
         <span>bpm</span>
       </div>
       <div class="row">
-        <label>A output</label>
+        <label>A</label>
         <input id="a_out" type="number" min="0" max="20" step="1" value="0">
         <span>mA</span>
       </div>
       <div class="row">
-        <label>V output</label>
+        <label>V</label>
         <input id="v_out" type="number" min="0" max="25" step="1" value="0">
         <span>mA</span>
       </div>
       <hr />
       <div class="row">
-        <label>A Sensitivity</label>
+        <h4>Sensitivity</h4>
+      </div>
+      <div class="row">
+        <label>A</label>
         <input id="a_sense" type="number" min="0" max="10" step="1" value="0">
         <span>mV</span>
       </div>
       <div class="row">
-        <label>V Sensitivity</label>
+        <label>V</label>
         <input id="v_sense" type="number" min="0" max="10" step="1" value="0">
         <span>mV</span>
       </div>

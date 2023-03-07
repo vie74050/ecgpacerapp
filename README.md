@@ -1,6 +1,6 @@
 # ECG Pacemaker Web App
 
-Single page  webapp to simulate ECG and pacemaker functions, used as a teaching and learning tool.
+Single page webapp to simulate ECG and pacemaker functions, used as a teaching and learning tool.
 
 Author: Vienna Ly  
 Company: BCIT  
@@ -9,24 +9,7 @@ SMEs:
 - Michelle Dunphy
 - Sarah Neville
 
-## Development Pipeline
-
-### Set up
-
-Run `npm install`
-
-### Local Dev
-
-Run `npm run start` to start webpack in dev mode  
-> Starts local server using port 8080, `localhost:8080`
-> Watches for changes  
-
-### Production
-
-Run `npm build` for production
-> Using Webpack to package and minify to `./dist` folder.
-
-## Development Notes & Resources
+## Pre-development Resources
 
 ### Online Dev Sandboxes
 
@@ -44,7 +27,26 @@ Other resources:
 1. ECG interval nomenclature based on: <https://litfl.com/pr-interval-ecg-library/>
 2. “normal” values: <https://www.nottingham.ac.uk/nursing/practice/resources/cardiology/function/normal_duration.php>
 
-## User Manual / Features
+## Development
+
+Simple js-based HTML web app built using Typescript and SCSS for development.
+
+### Set up
+
+Run `npm install`
+
+### Local Dev
+
+Run `npm run start` to start webpack in dev mode  
+> Starts local server using port 8080, `localhost:8080`
+> Watches for changes  
+
+### Production
+
+Run `npm run build` for production
+> Using Webpack to package and minify to `./dist` folder.
+
+## User Manual / App Features
 
 ### 1. Case Settings
 
@@ -90,6 +92,11 @@ Need to define the base rhythm and key points that will interact with pacemaker 
 
 1. Rate – sets the rate to emit pacer pulse
 2. P – will flash when a pulse is emitted
+3. S - will flash when innate signal is sensed
+4. MODE - preset modes based on 3-Pacemaker Codes nomencalture
+    i. Chamber paced: A, V, D, O
+    ii. Chamber sensed: A, V, D, O
+    iii. Response to sensed: T, I D
 
 ### 3. Monitor Settings
 

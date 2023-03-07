@@ -1,34 +1,38 @@
 $chart_w: 600;
 $chart_h: 200;
-$pacer_w: 230;
-*, html, body {
+
+*,
+html,
+body {
 	box-sizing: border-box;
 }
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 	font-size: small;
 	position: relative;
 }
-input[type=number]::-webkit-inner-spin-button, 
+
+input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
-   opacity: 1;
+	opacity: 1;
 }
 
 .row {
-  display: flex;
-  position: relative;
-  flex-direction: row;
+	display: flex;
+	position: relative;
+	flex-direction: row;
 }
 
 #mon-area {
 	display: flex;
 	flex-direction: column;
 	float: left;
-	
-	.monitor-row{
+
+	.monitor-row {
 		position: relative;
-  	height: $chart_h + px;
-		
+		height: $chart_h + px;
+
 		.mon-graph {
 			box-sizing: border-box;
 			border: 1px solid gray;
@@ -47,40 +51,51 @@ input[type=number]::-webkit-outer-spin-button {
 			padding: 0.2em 1em;
 			background-color: #111;
 			color: white;
+
 			.value {
 				flex-grow: 1;
 				font-size: 2em;
 				line-height: 1.5em;
 				text-align: center;
 			}
-			.label, .units {
+
+			.label,
+			.units {
 				font-size: smaller;
 				text-align: right;
 			}
 		}
-  }
+	}
 }
 
 .chart-controls {
-  column-gap: 20px;
+	column-gap: 20px;
 }
 
 #pacer-controls {
-	width: $pacer_w + px;
+	width: fit-content;
 	float: left;
 	margin: 8px;
 	padding: 1em;
 	background-color: #777;
 	border-radius: 10px;
+
 	.row {
 		align-items: center;
-	  span, label {
+		column-gap: 0.5em;
+		span,
+		label {
 			flex: 1;
+			padding-right: 1em;
+			text-align: right;
 		}
-		input[type='number'], select {
+
+		input[type='number'],
+		select {
 			width: 80px;
 			font-size: 1.5em;
 		}
+
 		input[type='radio']::after {
 			width: 15px;
 			height: 15px;
@@ -94,6 +109,7 @@ input[type=number]::-webkit-outer-spin-button {
 			visibility: visible;
 			border: 2px solid white;
 		}
+
 		input[type='radio']:checked::after {
 			width: 15px;
 			height: 15px;
@@ -103,9 +119,12 @@ input[type=number]::-webkit-outer-spin-button {
 			position: relative;
 			background-color: #00ffff;
 			box-shadow:
-			0 0 60px 15px #fff, /* inner white */
-			0 0 60px 15px #f0f, /* middle magenta */
-			0 0 60px 15px #0ff; /* outer cyan */
+				0 0 60px 15px #fff,
+				/* inner white */
+				0 0 60px 15px #f0f,
+				/* middle magenta */
+				0 0 60px 15px #0ff;
+			/* outer cyan */
 			content: '';
 			display: inline-block;
 			visibility: visible;
@@ -123,30 +142,34 @@ input[type=number]::-webkit-outer-spin-button {
 	padding: 0.5em 0.5em 1em 0.5em;
 	font-size: 10px;
 	text-align: center;
+
 	&._mini {
 		height: fit-content;
-    width: fit-content;
+		width: fit-content;
+
 		table {
 			display: none;
 		}
 	}
-	
+
 	input {
 		width: 50px;
-		&[type=checkbox]{
+
+		&[type=checkbox] {
 			width: 15px;
 		}
 	}
+
 	table.data-table {
-	
+
 		th {
 			padding-top: 1em;
 			text-align: left;
 		}
-		
+
 		td {
 			vertical-align: text-top;
 		}
 	}
-	
+
 }
