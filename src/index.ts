@@ -1,10 +1,10 @@
+import './scss/styles.scss';
 import $ from "jquery";
 import {IPresetFunctions, IDomNodes, IDomInputNodes} from "./Interfaces";
 import {Pulse, getRandomInt, getDomNodes, getDomInputNodes, GraphMonitor} from "./helpers";
 
 var SN_VAR: number = 0, AV_VAR: number = 0, QRS_VAR:number = 0;
 var RPULSEX = 0; // x when r pulsed
-
 
 $(() => {
 

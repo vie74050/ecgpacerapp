@@ -1,23 +1,6 @@
-# ECG pacemaker SPA
+# ECG Pacemaker Web App
 
-Single page app, using Typescript, SCSS, Webpack, to simulate ECG and pacemaker functions. To be used as a teaching and learning tool.
-
-## Development Notes
-
-**Code sandbox**: <https://jsfiddle.net/vie/yt7pxnm6>
-
-### build
-
-Run `npm install` and `npm build` to set up.
-> Using Webpack to package ts files to `.src/built/`, then esbuild to minify to `./dist` folder
-> scss compiled to `./dist/css`, minified.  Run `npm run scss` to just compile the scss file.
-
-#### Development mode
-
-`npm run start` to start local server.  
-`npm run dev` for webpack watch mode.
-
-### People
+Single page  webapp to simulate ECG and pacemaker functions, used as a teaching and learning tool.
 
 Author: Vienna Ly  
 Company: BCIT  
@@ -25,6 +8,32 @@ SMEs:
 
 - Michelle Dunphy
 - Sarah Neville
+
+## Development Pipeline
+
+### Set up
+
+Run `npm install`
+
+### Local Dev
+
+Run `npm run start` to start webpack in dev mode  
+> Starts local server using port 8080, `localhost:8080`
+> Watches for changes  
+
+### Production
+
+Run `npm build` for production
+> Using Webpack to package and minify to `./dist` folder.
+
+## Development Notes & Resources
+
+### Online Dev Sandboxes
+
+Used for rapid prototyping:  
+
+1. **Code**: <https://jsfiddle.net/vie/yt7pxnm6>  
+2. **Calculations**: <https://www.desmos.com/calculator/avtqfzgx7c>
 
 ### References
 
@@ -35,7 +44,7 @@ Other resources:
 1. ECG interval nomenclature based on: <https://litfl.com/pr-interval-ecg-library/>
 2. “normal” values: <https://www.nottingham.ac.uk/nursing/practice/resources/cardiology/function/normal_duration.php>
 
-## User Manual
+## User Manual / Features
 
 ### 1. Case Settings
 
