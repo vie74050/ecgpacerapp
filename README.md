@@ -20,12 +20,18 @@ Used for rapid prototyping:
 
 ### References
 
-Notes & resources from SMEs are in [Google Drive](https://drive.google.com/drive/folders/1AKn0I89XzcTrrK5CD73ZebVDXY4MrUrt?usp=sharing) (Permissions required)
+#### Docs & resources from SMEs
 
-Other resources:
+1. [Pacemaker Simulation doc](https://docs.google.com/document/d/1-7uLznpzISD7Ad-HLrtvr8eFzy3rfjLs/edit?usp=sharing&ouid=112502391111689148097&rtpof=true&sd=true)
+2. [Sample Rhythms for reference](https://drive.google.com/drive/folders/1WuSsgM4wSVVp7ZhGuaSCDNwyNxTkWXfb?usp=share_link)
+
+#### Other references
 
 1. ECG interval nomenclature based on: <https://litfl.com/pr-interval-ecg-library/>
 2. “normal” values: <https://www.nottingham.ac.uk/nursing/practice/resources/cardiology/function/normal_duration.php>
+3. Pacemaker  
+   i. Interpretation of Pacemaker ECG: <https://ecgwaves.com/topic/ecg-pacemaker-rhythm-malfunction-failure-tachyarrhythmia/>  
+   ii. Assessment of Pacemaker Malfunction: <https://ecgwaves.com/topic/assessment-of-pacemaker-malfunction-using-ecg/>
 
 ## Development
 
