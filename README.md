@@ -29,7 +29,7 @@ Other resources:
 
 ## Development
 
-Simple js-based HTML web app built using Typescript and SCSS for development.
+js-based HTML web app built using Typescript and SCSS for development.
 
 ### Set up
 
@@ -45,6 +45,11 @@ Run `npm run start` to start webpack in dev mode
 
 Run `npm run build` for production
 > Using Webpack to package and minify to `./dist` folder.
+
+#### Deploy
+
+Run `npm run deploy`
+> Will be deployed to GitHub pages: <https://vie74050.github.io/ecgpacerapp/>
 
 ## User Manual / App Features
 
