@@ -3,10 +3,9 @@ import $ from "jquery";
 import { IPresetFunctions, IDomNodes, IDomInputNodes } from "./Interfaces";
 import { Pulse, getRandomInt, getDomNodes, getDomInputNodes, GraphMonitor } from "./helpers";
 
-var SN_VAR: number = 0, AV_VAR: number = 0, QRS_VAR: number = 0;
-var RPULSEX = 0; // x when r pulsed
-
 $(() => {
+    var SN_VAR: number = 0, AV_VAR: number = 0, QRS_VAR: number = 0;
+    var RPULSEX = 0; // x when r pulsed
 
     // DOM elements
     const DISPLAY_ELEMS: IDomNodes = getDomNodes("#mon-area .value"); console.log(`display outs:`, DISPLAY_ELEMS);
@@ -22,9 +21,9 @@ $(() => {
      const nX = <HTMLInputElement>document.getElementById("nX");
      nX.onchange = (event) => {
          let newV = Number((event.target as HTMLInputElement).value);
-         hr_graph.X = 0;
+         hr_graph.X = -1;
          hr_graph.nX = newV;
-         bp_graph.X = 0;
+         bp_graph.X = -1;
          bp_graph.nX = newV;
      };
  
@@ -183,7 +182,7 @@ $(() => {
     const hr_graph = new GraphMonitor("canvashr", { nDIVX: Number(nX?.value) || 5 });
     hr_graph.Y = (x) => {
         const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
-        const maxH_mV = 25; // y-axis in mV
+        const maxH_mV = 25; // y-axis in mV --> 0.5 h in px
 
         // Get values from page
         // settings vars
@@ -227,13 +226,17 @@ $(() => {
 
         // default amplitudes
         let p_h = 10 * p_h_mod,
-            q_h = -10 * qrs_h_mod, r_h = 60 * qrs_h_mod, s_h = -20 * qrs_h_mod,
+            q_h = -10 * qrs_h_mod, 
+            r_h = 60 * qrs_h_mod, 
+            s_h = -20 * qrs_h_mod,
             t_h = 10 * qrs_h_mod;
         let noise = Math.random() * 0.2 + 1;
 
         // default durations (seconds)
         let p_w = 0.012,
-            q_w = 0.005 * qrs_w_mod, r_w = 0.008 * qrs_w_mod, s_w = 0.010 * qrs_w_mod,
+            q_w = 0.005 * qrs_w_mod, 
+            r_w = 0.009 * qrs_w_mod, 
+            s_w = 0.010 * qrs_w_mod,
             t_w = 0.040 * t_w_mod;
 
         let qrs_drop_counter = qrs_n > 0 ? n2 % (qrs_n + QRS_VAR) : n2 + 1;
@@ -282,59 +285,68 @@ $(() => {
         }
 
         //** PACER A PULSE & RESPONSE **//
-        let a = 0;
-        const a_i = 0, 
-              a_h = 60;
+                
+        //const innateP_mV = Pulse(p_i * (w / dT) + n1 * dxps + SN_VAR, p_i * (w / dT) + n1 * dxps + SN_VAR, p_h, p_w * (w / dT)); 
         let apacing = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;
-        let asensing = true; //@TODO - look if asense_mV normalized > innate P, simulated fail to pace...etc.  
-        let atrgger = true; //@TODO - simulated fail to capture
+        let asensing = !PACER_INPUTS["a_sense"].disabled;   //@TODO - , simulated fail to pace  
+        let atrigger = a_out_mA > 0 && a_out_mA >= aout_min;  //@TODO - simulated fail to capture
+        let asensed = p_h/h * maxH_mV >= asense_mV; //if innate P > asense_mV normalized 
 
         // A Pulse	
-        if ( x % (dx3ps) < 1 ) {
-            if (apacing) a = a_h;
+        let a = 0, a_h = 60;
+        if ( x % (dx3ps) < 1 ) { 
+            if (apacing && !asensing) a = a_h;
+            //@TODO if (asensing && asensed) a = 0; 
         }
         // A Response
-        if (apacing && atrgger) { //console.log('triggering a');
-            p_i = (a_i+0.04) * (w / dT) + n3 * dx3ps;
-            p = Pulse(x, p_i, p_h , p_w * (w / dT));
+        let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;
+        let vsensing = !PACER_INPUTS["v_sense"].disabled; //@TODO - look if vsense_mV normalized > innate QRST, simulated fail to pace...etc. 
+        let vtrigger = v_out_mA > 0 && v_out_mA >= vout_min; //@TODO - simulated fail to capture
+        let vsensed = q_h/h * maxH_mV >= vsense_mV || r_h/h * maxH_mV >= vsense_mV || s_h/h * maxH_mV >= vsense_mV || t_h/h * maxH_mV >= vsense_mV;
+
+        const a_i = 0.04;
+        if (apacing && atrigger) { //console.log('triggering a');
+            p_i = (a_i) * (w / dT);
+            p = Pulse(x, p_i + n3 * dx3ps, 2*p_h , p_w * (w / dT));
         }
 
         //** PACER V PULSE & RESPONSE **//
-        let v = 0;
-        const v_i = (a_i + 8*p_w) * (w / dT), //@TODO: Question re: v_i
-              v_h = 80; 
-
-        let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;
-        let vsensing = !PACER_INPUTS["v_sense"].disabled; //@TODO - look if vsense_mV normalized > innate QRST, simulated fail to pace...etc. 
-        let vtrigger = v_out_mA >= vout_min; //@TODO - simulated fail to capture
-        
+           
         // V Pulse
+        let v = 0, v_h = 80;
+        const v_i = p_i + 4*p_w * (w / dT); //@TODO: Question re: v_i    
         if ( (x-v_i) % (dx3ps) < 1  ) {   
-            if (vpacing) v = v_h;           
+            if (vpacing && !vsensing) v = v_h;           
         }
         // V Response
         if (vpacing && vtrigger) { //console.log('triggering v');        
-            r_h = -100;
-            r_w = 0.035 * dx3ps;
-            r_i = v_i + 4*r_w + n3 * dx3ps;
             
-            t_h = 40;
-            t_w = 0.08 * dx3ps; 
+            r_h = -60 * noise;
+            r_w = 0.06 * dx3ps;
+            r_i = v_i + 5*r_w;
+
+            s_h = -40 * noise;
+            s_w = 0.02 * dx3ps;
+            s_i = r_i + 4*s_w;
+            
+            t_h = 30 * noise;
+            t_w = 0.1 * dx3ps; 
             t_i = r_i + 1.5*t_w;
 
             q = 0;
-            r = Pulse(x, r_i, r_h, r_w);
-            s = 0;
-            t = Pulse(x, t_i, t_h, t_w);
+            r = Pulse(x, r_i + n3 * dx3ps, r_h, r_w);
+            s = Pulse(x, s_i + n3 * dx3ps, s_h, s_w);
+            t = Pulse(x, t_i + n3 * dx3ps, t_h, t_w);
         }
        
         let y = a + p + v + q + r + s + t;
 
         // UI OUTPUT VARS
         p_detect.checked = a > 0 || v > 0;
+        //@TODO s_detect.checked = p_h > 0 || v > 0;
 
         // Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
-        if (Math.abs(r) > Math.abs(0.95 * r_h)) {
+        if (Math.abs(r) > Math.abs(0.5 * r_h)) { 
             let offset = +0.15 * dx2ps;
             let deltaRx = x - RPULSEX + offset;
 
@@ -357,14 +369,17 @@ $(() => {
         const maxH = 240;
         const systolic_bpm = SETTINGS_INPUTS["sys_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_v"]?.value) : 120;
         const diastolic_bpm = SETTINGS_INPUTS["dia_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_v"]?.value) : 60;
-        const sys_pulse_h = systolic_bpm / maxH * h;
-        const dia_pulse_h = diastolic_bpm / maxH * h;
-        const pw = 0.1 * 60 * (w/dT) / hr_bpm;
+        const rx = 60 * (w/dT) / hr_bpm;
+        const pw = 0.03 * rx; 
+        const dh = systolic_bpm - diastolic_bpm;
 
-        const pulse1 = Pulse(x, RPULSEX, sys_pulse_h, pw);
-        const pulse2 = Pulse(x, RPULSEX + pw * 3, dia_pulse_h, pw * 2.5);
-        
-        return RPULSEX > 0 ? pulse1 + pulse2 + h : h;
+        const pulse_sys = Pulse(x/pw, RPULSEX/pw + 5, 1, 3);
+        const pulse_dia = Pulse(x/pw, RPULSEX/pw  + 15, 0.7, 4);
+
+        const pulse = hr_bpm>0? dh * (pulse_sys + pulse_dia) - diastolic_bpm : 0;
+
+        console.log(dT, rx, pw/5);
+        return RPULSEX > 0 ? pulse/maxH * h + h  : h;
     }
 
 });
