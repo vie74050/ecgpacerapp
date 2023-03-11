@@ -365,7 +365,7 @@ $(() => {
     const bp_graph = new GraphMonitor("canvasbp", { nDIVX: Number(nX?.value) || 5 });
     bp_graph.Y = (x) => {
         const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX;
-        const hr_bpm = Number(DISPLAY_ELEMS["hr_display_v"].textContent);
+        const hr_bpm = Number(SETTINGS_INPUTS["avr_v"].value);
         const maxH = 240;
         const systolic_bpm = SETTINGS_INPUTS["sys_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_v"]?.value) : 120;
         const diastolic_bpm = SETTINGS_INPUTS["dia_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_v"]?.value) : 60;
