@@ -32,6 +32,9 @@ Used for rapid prototyping:
 3. Pacemaker  
    i. Interpretation of Pacemaker ECG: <https://ecgwaves.com/topic/ecg-pacemaker-rhythm-malfunction-failure-tachyarrhythmia/>  
    ii. Assessment of Pacemaker Malfunction: <https://ecgwaves.com/topic/assessment-of-pacemaker-malfunction-using-ecg/>
+4. Blood pressure
+   i. Normal arterial line waveforms: <https://derangedphysiology.com/main/cicm-primary-exam/required-reading/cardiovascular-system/Chapter%20760/normal-arterial-line-waveforms>
+   ii. Arterial pressure monitoring: <https://www.statpearls.com/ArticleLibrary/viewarticle/17843>
 
 ## Development
 

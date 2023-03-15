@@ -290,28 +290,28 @@ $(() => {
         let apacing = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;
         let asensing = !PACER_INPUTS["a_sense"].disabled;   //@TODO - , simulated fail to pace  
         let atrigger = a_out_mA > 0 && a_out_mA >= aout_min;  //@TODO - simulated fail to capture
-        let asensed = p_h/h * maxH_mV >= asense_mV; //if innate P > asense_mV normalized 
+        let asensed = -p >= asense_mV; //@todo if innate P > asense_mV normalized -- MAGNITUDE ONLY? Maybe look at rate dx..?
 
         // A Pulse	
         let a = 0, a_h = 60;
         if ( x % (dx3ps) < 1 ) { 
-            if (apacing && !asensing) a = a_h;
-            //@TODO if (asensing && asensed) a = 0; 
+            if (apacing && !asensing || apacing && asensing && !asensed) a = a_h; 
+            if (apacing && asensing && asensed) a = -a_h; 
+            console.log("A pulse: ", Math.abs(p), a);
         }
         // A Response
-        let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;
-        let vsensing = !PACER_INPUTS["v_sense"].disabled; //@TODO - look if vsense_mV normalized > innate QRST, simulated fail to pace...etc. 
-        let vtrigger = v_out_mA > 0 && v_out_mA >= vout_min; //@TODO - simulated fail to capture
-        let vsensed = q_h/h * maxH_mV >= vsense_mV || r_h/h * maxH_mV >= vsense_mV || s_h/h * maxH_mV >= vsense_mV || t_h/h * maxH_mV >= vsense_mV;
-
         const a_i = 0.04;
-        if (apacing && atrigger) { //console.log('triggering a');
+        if (apacing && atrigger && !asensed) { //console.log('triggering a');
             p_i = (a_i) * (w / dT);
             p = Pulse(x, p_i + n3 * dx3ps, 2*p_h , p_w * (w / dT));
         }
 
         //** PACER V PULSE & RESPONSE **//
-           
+        let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;
+        let vsensing = !PACER_INPUTS["v_sense"].disabled; //@TODO - look if vsense_mV normalized > innate QRST, simulated fail to pace...etc. 
+        let vtrigger = v_out_mA > 0 && v_out_mA >= vout_min; //@TODO - simulated fail to capture
+        let vsensed = q_h/h * maxH_mV >= vsense_mV || r_h/h * maxH_mV >= vsense_mV || s_h/h * maxH_mV >= vsense_mV || t_h/h * maxH_mV >= vsense_mV;
+   
         // V Pulse
         let v = 0, v_h = 80;
         const v_i = p_i + 4*p_w * (w / dT); //@TODO: Question re: v_i    
@@ -366,19 +366,18 @@ $(() => {
     bp_graph.Y = (x) => {
         const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX;
         const hr_bpm = Number(SETTINGS_INPUTS["avr_v"].value);
-        const maxH = 240;
+        const maxH = 200;
         const systolic_bpm = SETTINGS_INPUTS["sys_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_v"]?.value) : 120;
         const diastolic_bpm = SETTINGS_INPUTS["dia_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_v"]?.value) : 60;
         const rx = 60 * (w/dT) / hr_bpm;
-        const pw = 0.03 * rx; 
+        const pw = 0.035* rx; 
         const dh = systolic_bpm - diastolic_bpm;
 
-        const pulse_sys = Pulse(x/pw, RPULSEX/pw + 5, 1, 3);
-        const pulse_dia = Pulse(x/pw, RPULSEX/pw  + 15, 0.7, 4);
-
+        const pulse_sys = Pulse(x/pw, RPULSEX/pw + 1.2*pw, 1, pw);
+        const pulse_dia = Pulse(x/pw, RPULSEX/pw  + 3.8*pw, 0.6, 1.2*pw);
         const pulse = hr_bpm>0? dh * (pulse_sys + pulse_dia) - diastolic_bpm : 0;
 
-        console.log(dT, rx, pw/5);
+        //console.log(dT, rx, pw/5);
         return RPULSEX > 0 ? pulse/maxH * h + h  : h;
     }
 
