@@ -89,7 +89,7 @@ $(() => {
         let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
         let p_q_interval = 0.04 * pr_v_mod * pq_multiplier;
 
-        let p_i = p_w / 2 + 0.02;
+        let p_i = p_w / 2 + 0.2;
         let q_i = p_i + p_w + q_w / 2 + p_q_interval;
         let r_i = q_i + q_w + r_w / 2 + 0.02;
         let s_i = r_i + r_w + s_w / 2 + 0.01;
