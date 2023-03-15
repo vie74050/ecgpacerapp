@@ -62,6 +62,8 @@ Run `npm run deploy`
 
 ## User Manual / App Features
 
+![image](https://user-images.githubusercontent.com/5272116/225432121-f605758f-e15c-474d-bdab-8c60eb467f0b.png)
+
 ### 1. Case Settings
 
 Where instructor set up variables for the case
