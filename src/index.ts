@@ -195,6 +195,8 @@ $(() => {
         const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value) || 0;
         const qrs_w_mod = SETTINGS_INPUTS["qrs_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_w"]?.value) : 1;
         const qrs_h_mod = SETTINGS_INPUTS["qrs_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_h"]?.value) : 1;
+        const t_h_mod = SETTINGS_INPUTS["t_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_h"]?.value) : 1;
+        const s_h_mod = SETTINGS_INPUTS["s_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["s_h"]?.value) : 1;
         // modifiers
         const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked || false;
         const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked || false;
@@ -228,8 +230,8 @@ $(() => {
         let p_h = 10 * p_h_mod,
             q_h = -10 * qrs_h_mod, 
             r_h = 60 * qrs_h_mod, 
-            s_h = -20 * qrs_h_mod,
-            t_h = 10 * qrs_h_mod;
+            s_h = -20 * s_h_mod,
+            t_h = 10 * t_h_mod;
         let noise = Math.random() * 0.2 + 1;
 
         // default durations (seconds)
@@ -346,13 +348,13 @@ $(() => {
         //@TODO s_detect.checked = p_h > 0 || v > 0;
 
         // Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
-        if (Math.abs(r) > Math.abs(0.5 * r_h)) { 
-            let offset = +0.15 * dx2ps;
+        if (Math.abs(r) > Math.abs(0.9 * r_h)) { 
+            let offset = 0.15 * dx2ps;
             let deltaRx = x - RPULSEX + offset;
 
             // update displayed HR
             if (deltaRx > offset && RPULSEX > 0) {
-                let HR: number = deltaRx > 0 ? (w / dT) / deltaRx * 60 : snr_bpm;
+                let HR: number = deltaRx > 0 ? (w / dT) / deltaRx * 60 : avr_bpm;
                 DISPLAY_ELEMS["hr_display_v"].textContent = Math.round(HR).toString();
             }
 
