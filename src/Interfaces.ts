@@ -1,8 +1,8 @@
 export interface IGraphOptions {
-    HEIGHT? : number;
-    WIDTH? : number;
-    LINE_COLOUR? : string;
-    GETY? (x: number) : number;
+    HEIGHT?: number;
+    WIDTH?: number;
+    LINE_COLOUR?: string;
+    GETY?(x: number): number;
     nDIVX?: number; // seconds shown in graph
 }
 export interface IPresetFunctions {

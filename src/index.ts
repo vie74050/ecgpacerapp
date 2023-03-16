@@ -1,184 +1,27 @@
 import './scss/styles.scss';
 import $ from "jquery";
-import { IPresetFunctions, IDomNodes, IDomInputNodes } from "./Interfaces";
+import { IDomNodes, IDomInputNodes } from "./Interfaces";
 import { Pulse, getRandomInt, getDomNodes, getDomInputNodes, GraphMonitor } from "./helpers";
+import * as UIEventsSettings from "./UI_Events/SettingsEvents";
+import * as UIEventsMonitor from "./UI_Events/DisplayEvents";
+import * as UIEventsPacer from "./UI_Events/PacerEvents";
 
 $(() => {
-    var SN_VAR: number = 0, AV_VAR: number = 0, QRS_VAR: number = 0;
-    var RPULSEX = 0; // x when r pulsed
+    var SN_VAR: number = 0, 
+        AV_VAR: number = 0, 
+        QRS_VAR: number = 0, 
+        RPULSEX = 0; // x when r pulsed
 
     // DOM elements
     const DISPLAY_ELEMS: IDomNodes = getDomNodes("#mon-area .value"); console.log(`display outs:`, DISPLAY_ELEMS);
+    
     const SETTINGS_INPUTS: IDomInputNodes = getDomInputNodes("#setup-area input"); console.log(`settings:`, SETTINGS_INPUTS);
+
     const PACER_INPUTS: IDomInputNodes = getDomInputNodes("#pacer-controls input"); console.log(`pacer_settings:`, PACER_INPUTS);
-
-     // MONITOR control events
-     const pp_btn = document.getElementById("playpause_btn");
-     pp_btn.onclick = (event) => {
-         hr_graph.PlayPause();
-         bp_graph.PlayPause();
-     }
-     const nX = <HTMLInputElement>document.getElementById("nX");
-     nX.onchange = (event) => {
-         let newV = Number((event.target as HTMLInputElement).value);
-         hr_graph.X = -1;
-         hr_graph.nX = newV;
-         bp_graph.X = -1;
-         bp_graph.nX = newV;
-     };
- 
-     // PACER control events
-     const pacer_mode_btn = document.getElementById("pacer_mode");
-     pacer_mode_btn.onchange = (event: Event) => {
-        let key = (event.target as HTMLInputElement).value;
-        let chars = key.split(''); // [pacing, sensing, sense response]
-
-        // pacing
-        switch (chars[0]) {
-            case 'a':
-                PACER_INPUTS["a_out"].disabled = false;
-                PACER_INPUTS["v_out"].disabled = true;
-                break;
-            case 'v':
-                PACER_INPUTS["v_out"].disabled = false;
-                PACER_INPUTS["a_out"].disabled = true;
-                break;
-            case 'd':
-                PACER_INPUTS["a_out"].disabled = false;
-                PACER_INPUTS["v_out"].disabled = false;
-                break;
-            case 'o':
-                PACER_INPUTS["a_out"].disabled = true;
-                PACER_INPUTS["v_out"].disabled = true;
-            default:
-                break;
-        }
-
-        // sensing
-        switch (chars[1]) {
-            case 'a':
-                PACER_INPUTS["a_sense"].disabled = false;
-                PACER_INPUTS["v_sense"].disabled = true;
-                break;
-            case 'v':
-                PACER_INPUTS["v_sense"].disabled = false;
-                PACER_INPUTS["a_sense"].disabled = true;
-                break;
-            case 'd':
-                PACER_INPUTS["a_sense"].disabled = false;
-                PACER_INPUTS["v_sense"].disabled = false;
-                break;
-            case 'o':
-                PACER_INPUTS["a_sense"].disabled = true;
-                PACER_INPUTS["v_sense"].disabled = true;
-            default:
-                break;
-        }
-       
-        switch (chars[2]) { //@TODO
-            case 'i':
-                break;
-            case 'd':
-                break;
-            case 't':
-            case 'o':
-            default:
-                break;
-        }
-     }
-     pacer_mode_btn.dispatchEvent(new Event('change'));
- 
-    // SETTINGS events
-    const reset_btn = document.getElementById("reset_btn");
-    reset_btn.onclick = (event: Event) => {
-        Array.from(document.getElementsByTagName('input')).forEach(input => {
-            input.value = input.defaultValue;
-            input.dispatchEvent(new Event('change'));
-
-            if (input.type == "checkbox") {
-                input.checked = input.defaultChecked;
-            }
-        });
-        Array.from(document.getElementsByTagName('select')).forEach(sel => {
-            sel.selectedIndex = 0;
-            sel.dispatchEvent(new Event('change'));
-        });
-    }
-    const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById("hide_settings_btn");
-    hide_settings_btn.onclick = (event: Event) => {
-        var target = document.getElementById("setup-area");
-        target.classList.toggle("_mini");
-    }
-
-    // Preset innate rhythm selection options
-    const presets_sel = document.getElementById("innate-sel");
-    var PRESETS: IPresetFunctions = {
-        "2ndavb1": () => {
-            SETTINGS_INPUTS["pr_v"].value = '2';
-            SETTINGS_INPUTS["pr_cb"].checked = true;
-            SETTINGS_INPUTS["qrs_n"].value = '3';
-        },
-        "2ndavb2": () => {
-            SETTINGS_INPUTS["qrs_n"].value = '3';
-            SETTINGS_INPUTS["qrs_r"].checked = true;
-        },
-        "3rdavb": () => {
-            SETTINGS_INPUTS["snr_v"].value = '100';
-            SETTINGS_INPUTS["avr_v"].value = '30';
-            SETTINGS_INPUTS["qrs_w"].value = '5';
-        },
-        "junctionalbd": () => {
-            SETTINGS_INPUTS["snr_v"].value = '50';
-            SETTINGS_INPUTS["avr_v"].value = '50';
-            SETTINGS_INPUTS["p_h"].value = '-1';
-            SETTINGS_INPUTS["qrs_w"].value = '0.8';
-        },
-        "ventescape": () => {
-            SETTINGS_INPUTS["snr_v"].value = '10';
-            SETTINGS_INPUTS["avr_v"].value = '40';
-            SETTINGS_INPUTS["qrs_n"].value = '4';
-            SETTINGS_INPUTS["qrs_w"].value = '5';
-        }
-
-    }
-    presets_sel.onchange = (event: Event) => {
-        let key = (event.target as HTMLInputElement).value;
-        Array.from(document.getElementsByTagName('input')).forEach(input => {
-            input.value = input.defaultValue;
-            input.dispatchEvent(new Event('change'));
-
-            if (input.type == "checkbox") {
-                input.checked = input.defaultChecked;
-            }
-        });
-        if (key in PRESETS) {
-            PRESETS[key]();
-        }
-    };
-
-    const snr_btn = SETTINGS_INPUTS["snr_v"];
-    snr_btn.onchange = (event: Event) => {
-        SETTINGS_INPUTS["avr_v"].value = snr_btn.value;
-    };
-
-    const sys_btn = SETTINGS_INPUTS["sys_v"];
-    sys_btn.onchange = (event: Event) => {
-        let newV = Number((event.target as HTMLInputElement).value);
-        DISPLAY_ELEMS["sys_display_v"].textContent = newV.toString();
-    };
-    sys_btn.defaultValue = sys_btn.value;
-    sys_btn.dispatchEvent(new Event('change'));
-
-    const dia_btn = SETTINGS_INPUTS["dia_v"];
-    dia_btn.onchange = (event: Event) => {
-        let newV = Number((event.target as HTMLInputElement).value);
-        DISPLAY_ELEMS["dia_display_v"].textContent = newV.toString();
-    };
-    dia_btn.defaultValue = dia_btn.value;
-    dia_btn.dispatchEvent(new Event('change'));
+    
+    const nX = <HTMLInputElement>document.getElementById("nX");   
 
     // CREATE GRAPHS
-
     const hr_graph = new GraphMonitor("canvashr", { nDIVX: Number(nX?.value) || 5 });
     hr_graph.Y = (x) => {
         const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
@@ -299,7 +142,7 @@ $(() => {
         if ( x % (dx3ps) < 1 ) { 
             if (apacing && !asensing || apacing && asensing && !asensed) a = a_h; 
             if (apacing && asensing && asensed) a = -a_h; 
-            console.log("A pulse: ", Math.abs(p), a);
+            //console.log("A pulse: ", Math.abs(p), a);
         }
         // A Response
         const a_i = 0.04;
@@ -383,4 +226,12 @@ $(() => {
         return RPULSEX > 0 ? pulse/maxH * h + h  : h;
     }
 
+    // PACER events
+    UIEventsPacer.Setup(PACER_INPUTS);
+
+    // SETTINGS events
+    UIEventsSettings.Setup(DISPLAY_ELEMS, SETTINGS_INPUTS);
+
+    // MONITOR events
+    UIEventsMonitor.Setup(hr_graph, bp_graph);
 });
