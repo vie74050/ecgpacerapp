@@ -22,10 +22,13 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
         let filename = '';
         let content = {};
 
-        Object.keys(SETTINGS_INPUTS).map( k => content[k] = SETTINGS_INPUTS[k].value);
+        Object.keys(SETTINGS_INPUTS).map( (k) => {
+            let data = SETTINGS_INPUTS[k];
+            content[k] = data.type === 'checkbox'? data.checked : data.value ;
+        });
        
         do {
-            filename = prompt('Enter file name.');
+            filename = prompt('Enter file name to save as.');
         } while (filename.length===0 || filename == null);
 
         if (filename.length>0){
@@ -33,6 +36,11 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
             download(JSON.stringify(content), filename, 'text/plain' );
             alert(filename + "... Saved to your local Downloads folder.");
         }        
+    }
+
+    const load_btn = document.getElementById("load_btn");
+    load_btn.onclick = (event: Event) => {
+        load(SETTINGS_INPUTS);
     }
 
     const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById("hide_settings_btn");
@@ -116,4 +124,32 @@ function download(content, fileName, contentType) {
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(a.href);
+}
+
+function load(SETTINGS_INPUTS: IDomInputNodes) {
+    let input = document.createElement('input') as HTMLInputElement;
+    input.type = 'file';
+
+    input.onchange = e => { 
+        let file = (e.currentTarget as HTMLInputElement).files[0]; 
+        let reader = new FileReader();
+        reader.readAsText(file); 
+
+        reader.onload = readerEvent => {
+            let content = readerEvent.target.result; 
+            // validate content
+            if (content) {
+                let data = JSON.parse(content as string);
+                let k: keyof typeof data;
+                for (k in data) {
+                    let target = SETTINGS_INPUTS[k]
+                    if (target){
+                        if( target.type === 'number') target.value = data[k];
+                        else if (target.type === 'checkbox') target.checked = data[k];
+                    }
+                }
+            }
+        }
+    }
+    input.click();
 }
