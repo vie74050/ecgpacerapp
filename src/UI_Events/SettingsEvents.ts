@@ -1,23 +1,17 @@
-import { IPresetFunctions, IDomNodes, IDomInputNodes } from "../Interfaces";
+import { IDomNodes, IDomInputNodes } from '../Interfaces';
+import { rhythms } from '../Presets/InnateRythms';
 
 export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes) {
-    const reset_btn = document.getElementById("reset_btn");
+    const reset_btn = document.getElementById('reset_btn');
     reset_btn.onclick = (event: Event) => {
-        Array.from(document.getElementsByTagName('input')).forEach(input => {
-            input.value = input.defaultValue;
-            input.dispatchEvent(new Event('change'));
-
-            if (input.type == "checkbox") {
-                input.checked = input.defaultChecked;
-            }
-        });
+        resetInputsToDefault();
         Array.from(document.getElementsByTagName('select')).forEach(sel => {
             sel.selectedIndex = 0;
             sel.dispatchEvent(new Event('change'));
         });
     }
 
-    const save_btn = document.getElementById("save_btn");
+    const save_btn = document.getElementById('save_btn');
     save_btn.onclick = (event: Event) => {
         let filename = '';
         let content = {};
@@ -32,100 +26,81 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
         } while (filename.length===0 || filename == null);
 
         if (filename.length>0){
-            filename = 'ecgapp/'+filename+'.txt';
+            content['title'] = filename;
+            filename = 'ECGAPP_'+filename+'.txt';
             download(JSON.stringify(content), filename, 'text/plain' );
-            alert(filename + "... Saved to your local Downloads folder.");
+            alert(filename + '... Saved to your local Downloads folder.');
         }        
     }
 
-    const load_btn = document.getElementById("load_btn");
+    const load_btn = document.getElementById('load_btn');
     load_btn.onclick = (event: Event) => {
         load(SETTINGS_INPUTS);
     }
 
-    const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById("hide_settings_btn");
+    const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById('hide_settings_btn');
     hide_settings_btn.onclick = (event: Event) => {
-        var target = document.getElementById("setup-area");
-        target.classList.toggle("_mini");
+        var target = document.getElementById('setup-area');
+        target.classList.toggle('_mini');
     }
 
     // Preset innate rhythm selection options
-    const presets_sel = document.getElementById("innate-sel");
-    var PRESETS: IPresetFunctions = {
-        "2ndavb1": () => {
-            SETTINGS_INPUTS["pr_v"].value = '2';
-            SETTINGS_INPUTS["pr_cb"].checked = true;
-            SETTINGS_INPUTS["qrs_n"].value = '3';
-        },
-        "2ndavb2": () => {
-            SETTINGS_INPUTS["qrs_n"].value = '3';
-            SETTINGS_INPUTS["qrs_r"].checked = true;
-        },
-        "3rdavb": () => {
-            SETTINGS_INPUTS["snr_v"].value = '100';
-            SETTINGS_INPUTS["avr_v"].value = '30';
-            SETTINGS_INPUTS["qrs_w"].value = '5';
-        },
-        "junctionalbd": () => {
-            SETTINGS_INPUTS["snr_v"].value = '50';
-            SETTINGS_INPUTS["avr_v"].value = '50';
-            SETTINGS_INPUTS["p_h"].value = '-1';
-            SETTINGS_INPUTS["qrs_w"].value = '0.8';
-        },
-        "ventescape": () => {
-            SETTINGS_INPUTS["snr_v"].value = '10';
-            SETTINGS_INPUTS["avr_v"].value = '40';
-            SETTINGS_INPUTS["qrs_n"].value = '4';
-            SETTINGS_INPUTS["qrs_w"].value = '5';
-        }
-
+    const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
+    const presets_rhythms = rhythms;
+    // create preset options
+    let k: keyof typeof presets_rhythms;
+    for (k in presets_rhythms) {
+        
+        let data =  presets_rhythms[k];        
+        if (data) {
+            let newoption = document.createElement('option');
+            newoption.value = k;
+            newoption.textContent = data['title']? data['title'] : k;
+            presets_sel.add(newoption);
+        } 
     }
     presets_sel.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
-        Array.from(document.getElementsByTagName('input')).forEach(input => {
-            input.value = input.defaultValue;
-            input.dispatchEvent(new Event('change'));
-
-            if (input.type == "checkbox") {
-                input.checked = input.defaultChecked;
-            }
-        });
-        if (key in PRESETS) {
-            PRESETS[key]();
+        const contents = rhythms[key];
+        if (contents) {
+            setContent(key, contents, SETTINGS_INPUTS);
         }
+        //console.log(contents);
     };
 
-    const snr_btn = SETTINGS_INPUTS["snr_v"];
+    const snr_btn = SETTINGS_INPUTS['snr_v'];
     snr_btn.onchange = (event: Event) => {
-        SETTINGS_INPUTS["avr_v"].value = snr_btn.value;
+        SETTINGS_INPUTS['avr_v'].value = snr_btn.value;
     };
 
-    const sys_btn = SETTINGS_INPUTS["sys_v"];
+    const sys_btn = SETTINGS_INPUTS['sys_v'];
     sys_btn.onchange = (event: Event) => {
         let newV = Number((event.target as HTMLInputElement).value);
-        DISPLAY_ELEMS["sys_display_v"].textContent = newV.toString();
+        DISPLAY_ELEMS['sys_display_v'].textContent = newV.toString();
     };
     sys_btn.defaultValue = sys_btn.value;
     sys_btn.dispatchEvent(new Event('change'));
 
-    const dia_btn = SETTINGS_INPUTS["dia_v"];
+    const dia_btn = SETTINGS_INPUTS['dia_v'];
     dia_btn.onchange = (event: Event) => {
         let newV = Number((event.target as HTMLInputElement).value);
-        DISPLAY_ELEMS["dia_display_v"].textContent = newV.toString();
+        DISPLAY_ELEMS['dia_display_v'].textContent = newV.toString();
     };
     dia_btn.defaultValue = dia_btn.value;
     dia_btn.dispatchEvent(new Event('change'));
 }
 
+/** Saves settings as json txt file to local folder. 
+ *  Prompts user for filename to save as. */
 function download(content, fileName, contentType) {
-    var a = document.createElement("a");
+    var a = document.createElement('a');
     var file = new Blob([content], {type: contentType});
     a.href = URL.createObjectURL(file);
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(a.href);
 }
-
+/** Prompts user to select a local saved txt file to load. */
 function load(SETTINGS_INPUTS: IDomInputNodes) {
     let input = document.createElement('input') as HTMLInputElement;
     input.type = 'file';
@@ -137,19 +112,53 @@ function load(SETTINGS_INPUTS: IDomInputNodes) {
 
         reader.onload = readerEvent => {
             let content = readerEvent.target.result; 
-            // validate content
             if (content) {
                 let data = JSON.parse(content as string);
-                let k: keyof typeof data;
-                for (k in data) {
-                    let target = SETTINGS_INPUTS[k]
-                    if (target){
-                        if( target.type === 'number') target.value = data[k];
-                        else if (target.type === 'checkbox') target.checked = data[k];
-                    }
-                }
+                setContent(file.name, data, SETTINGS_INPUTS);
             }
         }
     }
     input.click();
+}
+/** Gets all input elements and resets to default value */
+function resetInputsToDefault() {
+    Array.from(document.getElementsByTagName('input')).forEach(input => {
+        input.value = input.defaultValue;
+        
+        if (input.type == 'checkbox') {
+            input.checked = input.defaultChecked;
+        }
+        
+        input.dispatchEvent(new Event('change'));
+    });
+}
+/** Applies the data to settings inputs.
+ *  Adds to Settings Presets options if new.
+ */
+function setContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
+    let k: keyof typeof data;
+    for (k in data) {
+        // set Settings
+        let target = SETTINGS_INPUTS[k];
+        if (target){
+            if( target.type === 'number') target.value = data[k];
+            else if (target.type === 'checkbox') target.checked = data[k];
+
+            target.dispatchEvent(new Event('change'));
+        }      
+    }
+
+    if (!(fname in rhythms)) {
+        const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
+       
+        rhythms[fname] = data;
+        let newoption = document.createElement('option') as HTMLOptionElement;
+            newoption.value = fname;
+            newoption.textContent = data['title']? data['title'] : fname;
+
+        presets_sel.add(newoption);
+        presets_sel.value = fname;
+        //console.log(rhythms);
+
+    } 
 }
