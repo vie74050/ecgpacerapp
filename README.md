@@ -11,7 +11,7 @@ SMEs:
 
 ## User Manual / App Features
 
-![image](https://user-images.githubusercontent.com/5272116/225432121-f605758f-e15c-474d-bdab-8c60eb467f0b.png)
+![image](https://user-images.githubusercontent.com/5272116/226484263-2753a334-1fb5-403f-b4e6-27d97d6ebb32.png)
 
 ### 1. How instructors set up variables for the case
 
