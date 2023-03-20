@@ -142,7 +142,7 @@ export function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputN
         let target = SETTINGS_INPUTS[k];
         if (target){
             if( target.type === 'number') target.value = data[k];
-            else if (target.type === 'checkbox') target.checked = data[k];
+            else if (target.type === 'checkbox') target.checked = data[k]===true || data[k]==='true';
 
             target.dispatchEvent(new Event('change'));
         }      

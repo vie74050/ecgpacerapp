@@ -49,15 +49,19 @@ $(() => {
     let setup_params = findGetParameters();
     let initdata = {};
     setup_params.forEach( (v,i)=>{
+        let key = decodeURI(v[0]).toString();
+        let val = decodeURI(v[1]).toString();
+
         // check for DOM element target, `_{id}`, to hide
-        if (v[1]==='false' || v[1]==='none' || v[1]==='0') {
+        if (val==='false' || val==='none' || val==='0') {
             $('#_'+v[0])?.hide();
         }
 
         // check for custom rhythm settings
         if (SETTINGS_INPUTS[v[0]]) {
-            //console.log(SETTINGS_INPUTS[v[0]], v[1]);
-            initdata[v[0]] = v[1];
+            
+            //console.log(SETTINGS_INPUTS[decodeURI(v[0])],decodeURI(v[1]));
+            initdata[key] = val;
         }
     });
     if (Object.keys(initdata).length>0) {
