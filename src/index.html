@@ -4,7 +4,7 @@
   <body>
     <section id="mon-area">
 
-      <div class="monitor-row row">
+      <div class="monitor-row row" id="ecggraph">
         <canvas id="canvashr" class="mon-graph"></canvas>
         <div id="hr_display" class="mon-display">
           <p class="label">HR</p>
@@ -13,7 +13,7 @@
         </div>
       </div>
     
-      <div class="monitor-row row">
+      <div class="monitor-row row" id="_bpgraph">
         <canvas id="canvasbp" class="mon-graph"></canvas>
         <div id="bp_display" class="mon-display">
           <p class="label">BP</p>
@@ -31,7 +31,7 @@
       </div>
     </section>
     
-    <section id="pacer-controls">
+    <section id="_pacer">
       <div class="row">
         <span><label title="P fired">P</label><input id="p_detect" type="radio" disabled></span>
         <span>
@@ -85,7 +85,7 @@
       </div>
     </section>
     
-    <section id="setup-area">
+    <section id="_settings">
       <button title="Reset to default values" id="reset_btn">Reset &#8634;</button>
       <button title="Download values" id="save_btn">Save <b>&#128427;</b> </button>
       <button title="Load saved values from txt" id="load_btn">Load <b>&#128449;</b> </button>

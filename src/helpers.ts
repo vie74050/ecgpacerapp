@@ -108,13 +108,13 @@ export class GraphMonitor {
 }
 
 
-//** PRESET GRAPHS ***************************************************//
+//** GRAPHING Fns ****************************************************//
 
 export function Pulse(t: number, x: number, a: number, w: number): number {
     return -a * Math.exp(-0.5 * Math.pow((t - x) / w, 2));
 }
 
-//** HELPERS *********************************************************//
+//** HELPERS DOM & type manipulation *********************************//
 
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
@@ -143,4 +143,19 @@ export function getDomInputNodes(selector: string): IDomInputNodes {
     monarea_list.forEach((node) => returnNodes[node.id] = <HTMLInputElement>node);
 
     return returnNodes;
+}
+
+/** Get set up parameters.
+ * @returns {Array} Array of [paramName, value]
+ */
+export function findGetParameters() {
+    var result = [];
+    location.search
+        .substring(1)
+        .split("&")
+        .forEach(function (item) {
+          let tmp = item.split("=");
+          result.push(tmp);
+        });
+    return result;
 }

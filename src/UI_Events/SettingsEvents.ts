@@ -40,7 +40,7 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
 
     const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById('hide_settings_btn');
     hide_settings_btn.onclick = (event: Event) => {
-        var target = document.getElementById('setup-area');
+        var target = document.getElementById('_settings');
         target.classList.toggle('_mini');
     }
 
@@ -63,7 +63,7 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
         let key = (event.target as HTMLInputElement).value;
         const contents = rhythms[key];
         if (contents) {
-            setContent(key, contents, SETTINGS_INPUTS);
+            SetContent(key, contents, SETTINGS_INPUTS);
         }
         //console.log(contents);
     };
@@ -114,7 +114,7 @@ function load(SETTINGS_INPUTS: IDomInputNodes) {
             let content = readerEvent.target.result; 
             if (content) {
                 let data = JSON.parse(content as string);
-                setContent(file.name, data, SETTINGS_INPUTS);
+                SetContent(file.name, data, SETTINGS_INPUTS);
             }
         }
     }
@@ -135,7 +135,7 @@ function resetInputsToDefault() {
 /** Applies the data to settings inputs.
  *  Adds to Settings Presets options if new.
  */
-function setContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
+export function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
     let k: keyof typeof data;
     for (k in data) {
         // set Settings
