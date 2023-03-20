@@ -5,7 +5,7 @@
   "avr_cb": false,
   "p_h": "1.5",
   "qrs_h": "0.5",
-  "pr_v": "-5",
+  "pr_w": "-5",
   "qrs_w": "0.5",
   "pr_cb": false,
   "qrs_n": "0",

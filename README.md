@@ -9,6 +9,155 @@ SMEs:
 - Michelle Dunphy
 - Sarah Neville
 
+## User Manual / App Features
+
+![image](https://user-images.githubusercontent.com/5272116/225432121-f605758f-e15c-474d-bdab-8c60eb467f0b.png)
+
+### 1. How instructors set up variables for the case
+
+#### Load with optional URL parameters
+
+Pass optional parameters with the URL to set UI and rhythm settings. Unset parameters use default values for *Normal Sinus Rhythm at 80 bpm*.
+
+Format: {url}?`{options}`
+
+##### Options
+
+###### Hide UI areas
+
+   > bpgraph=0  
+   > pacer=0  
+   > settings=0  
+
+###### Pre-Set Innate Rhythm Settings in URL
+
+Refer to `Param name(s)` associated with each variable in the docs.  
+
+ NB
+
+- suffix `_h` (height) and `_w` (width) should be passed a number
+- suffix `_cb` (checkbox) should be passed `true` or `false`
+
+###### Example 
+
+> {URL}`?sn_r=60&p_h=0&bpgraph=0&pr_cb=true`
+>
+> - Sets **SN Rate** to 60 (and AV rate follows) and **P height** to 0  
+> - Hides BP graph
+
+#### Load from file
+
+- Prompts user to select a file from local directory
+- Loads the preset values and adds to `Preset` selection as first (default) option
+
+#### Save to Local
+
+- Prompts user to enter a name (string) to be used as file name and title attribute
+- Save to the `Downloads` folder (based on user's web settings) as a text file
+
+#### Reset
+
+Will reset all inputs in the webapp to session defaults.
+
+- Pacer settings will be reset
+- Innate rhythm settings will be reset to first item in the **Preset** options (if no custom loaded settings, Normal Sinus Rhythm at 80 is the default)
+
+#### **Innate Rhythm settings**
+
+##### **SN rate**
+
+Param name: `sn_r`
+
+P pulse rate.  If changed will also change **AV rate** likewise.  
+
+- **Irregular option** `snr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
+
+##### **AV rate**
+
+Param name: `av_r`  
+
+Default: if unchanged, it will follow SN rate.  
+
+- **Irregular option** `avr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
+
+##### **Heights** (normalized)
+
+Param names: `p_h`, `qrs_h`, `s_h`, `t_h`
+
+Multiplier for default amplitude values.  
+
+> e.g. if set to 2, then peak height of the complex will be 2x the default
+
+##### **PR segment** (normalized)  
+
+Param name: `pr_w`
+
+Multiplier for PR segment duration (width)
+
+- **Increasing?** `pr_cb`: if checked, PR multiplier will increase each cycle and reset based on QRS drop (e.g. try Pre-set 2nd AV Block I)
+
+##### **QRS duration**
+
+Param name: `qrs_w`
+
+Multiplier for QRS complex duration (width)
+
+##### **QRS Drop** number (n)
+
+Param name: `qrs_n`
+
+Cycles up to the set number (n), which will be dropped.  
+
+e.g.  
+> n = 1, every QRS will be dropped  
+> n = 2, every second QRS will be dropped…etc.  
+
+- **Random?**:  If checked, then every (n) will be randomly dropped or not
+
+##### **ST Segment**
+
+Param name: `st_w`
+
+Multiplier for ST segment duration (width)
+
+##### **T duration**
+
+Param name: `t_w`
+
+Multiplier for T wave duration (width)
+
+#### **Pre-sets**
+
+Select from the list of pre-set rhythms.  They should set the values for the Innate Rhythm Settings parameters above.
+
+### 2. Pacer Settings
+
+Where user (student) adjust pacemaker settings to view changes
+
+~ Work in progress~  
+Need to define the base rhythm and key points that will interact with pacemaker (i.e atrial pulse looks at P signal, …etc.)
+
+1. Rate – sets the rate to emit pacer pulse
+2. P – will flash when a pulse is emitted
+3. S - will flash when innate signal is sensed
+4. MODE - preset modes based on 3-Pacemaker Codes nomencalture
+    i. Chamber paced: A, V, D, O
+    ii. Chamber sensed: A, V, D, O
+    iii. Response to sensed: T, I D
+
+### 3. Monitor Settings
+
+Output graph and vital signs
+
+1. **Play/Pause**  
+Toggle to pause or resume graphing
+
+2. **Scale X (seconds)**  
+Change the scale of the x axis.  Each tick is 1 second.  Set the number of seconds for the width of monitor.
+    >e.g. default x = 5 = graph width represents five seconds
+
+---
+
 ## Pre-development Resources
 
 ### Online Dev Sandboxes
@@ -59,68 +208,3 @@ Run `npm run build` for production
 
 Run `npm run deploy`
 > Will be deployed to GitHub pages: <https://vie74050.github.io/ecgpacerapp/>
-
-## User Manual / App Features
-
-![image](https://user-images.githubusercontent.com/5272116/225432121-f605758f-e15c-474d-bdab-8c60eb467f0b.png)
-
-### 1. Case Settings
-
-Where instructor set up variables for the case
-
-1. **Pre-sets**
-    Select from the list of pre-set rhythms.  They should set the values for the Innate Rhythm Settings parameters above.
-
-2. **Innate Rhythm settings** inputs  
-    a. **SN RATE** – P pulse rate.  If changed will also change AV rate likewise  
-    b. **AV rate**  -- default if unchanged, it will follow SN rate  
-
-    i. **Irregular option**:  if checked, the associated rate will vary +/- 25% from the set rate.  
-
-3. **P height, QRS height** (normalized)  
-Multiplier for default amplitude values.  i.e. set to 2, then peak height of the complex will be 2x the default
-
-4. **PR segment** (normalized)  
-Multiplier for PR segment duration  
-    a. **Increasing?**: if checked, PR multiplier will increase each cycle and reset based on QRS drop (e.g. try Pre-set 2nd AV Block I)
-
-5. **QRS duration**
-Multiplier for QRS complex duration (width)
-
-6. **QRS Drop**  
-Cycle up to the set number (n), which will be dropped.  
-    >e.g.  
-    >n = 1, every QRS will be dropped  
-    >n = 2, every second QRS will be dropped…etc.  
-
-    a. **Random?**:  if checked, then every n will be randomly dropped or not
-
-7. **ST Segment**: multiplier for ST segment duration
-
-8. **T duration**: multiplier for T wave duration (width)
-
-### 2. Pacer Settings
-
-Where user (student) adjust pacemaker settings to view changes
-
-~ Work in progress~  
-Need to define the base rhythm and key points that will interact with pacemaker (i.e atrial pulse looks at P signal, …etc.)
-
-1. Rate – sets the rate to emit pacer pulse
-2. P – will flash when a pulse is emitted
-3. S - will flash when innate signal is sensed
-4. MODE - preset modes based on 3-Pacemaker Codes nomencalture
-    i. Chamber paced: A, V, D, O
-    ii. Chamber sensed: A, V, D, O
-    iii. Response to sensed: T, I D
-
-### 3. Monitor Settings
-
-Output graph and vital signs
-
-1. **Play/Pause**  
-Toggle to pause or resume graphing
-
-2. **Scale X (seconds)**  
-Change the scale of the x axis.  Each tick is 1 second.  Set the number of seconds for the width of monitor.
-    >e.g. default x = 5 = graph width represents five seconds

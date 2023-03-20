@@ -15,7 +15,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const snr_bpm = SETTINGS_INPUTS['sn_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['sn_r']?.value) : 60;
     const avr_bpm = SETTINGS_INPUTS['av_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['av_r']?.value) : 60;
     const p_h_mod = SETTINGS_INPUTS["p_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["p_h"]?.value) : 1;
-    const pr_v_mod = SETTINGS_INPUTS["pr_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["pr_v"]?.value) : 1;
+    const pr_w_mod = SETTINGS_INPUTS["pr_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["pr_w"]?.value) : 1;
     const st_mod = SETTINGS_INPUTS['st_v']?.value != 'undefined' ? Number(SETTINGS_INPUTS['st_v']?.value) : 1;
     const t_w_mod = SETTINGS_INPUTS["t_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_w"]?.value) : 1;
     const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value) || 0;
@@ -70,7 +70,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let qrs_drop_counter = qrs_n > 0 ? n2 % (qrs_n + QRS_VAR) : n2 + 1;
     let drop = !(qrs_drop_counter > 0) ? 0 : 1;
     let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
-    let p_q_interval = 0.04 * pr_v_mod * pq_multiplier;
+    let p_q_interval = 0.04 * pr_w_mod * pq_multiplier;
 
     let p_i = p_w / 2 + 0.2;
     let q_i = p_i + p_w + q_w / 2 + p_q_interval;
@@ -108,7 +108,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         s = Pulse(x, s_i * (w / dT) + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
         t = Pulse(x, t_i * (w / dT) + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));
 
-        //let v = Pulse(x-0.2*dx2ps,0.1*pr_v_mod*dx2ps+n2*dx2ps, 50, 2) + Pulse(x-0.2*dx2ps,5+n2*dx2ps, 100, 2);; 		
+        //let v = Pulse(x-0.2*dx2ps,0.1*pr_w_mod*dx2ps+n2*dx2ps, 50, 2) + Pulse(x-0.2*dx2ps,5+n2*dx2ps, 100, 2);; 		
         //console.log(n2, dx2ps, dT);
     }
 
