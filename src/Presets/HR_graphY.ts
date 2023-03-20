@@ -12,11 +12,11 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
     // Get values from page
     // settings vars
-    const snr_bpm = SETTINGS_INPUTS["snr_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["snr_v"]?.value) : 60;
-    const avr_bpm = SETTINGS_INPUTS["avr_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["avr_v"]?.value) : 60;
+    const snr_bpm = SETTINGS_INPUTS['sn_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['sn_r']?.value) : 60;
+    const avr_bpm = SETTINGS_INPUTS['av_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['av_r']?.value) : 60;
     const p_h_mod = SETTINGS_INPUTS["p_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["p_h"]?.value) : 1;
     const pr_v_mod = SETTINGS_INPUTS["pr_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["pr_v"]?.value) : 1;
-    const st_v_mod = SETTINGS_INPUTS["st_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["st_v"]?.value) : 1;
+    const st_mod = SETTINGS_INPUTS['st_v']?.value != 'undefined' ? Number(SETTINGS_INPUTS['st_v']?.value) : 1;
     const t_w_mod = SETTINGS_INPUTS["t_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_w"]?.value) : 1;
     const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value) || 0;
     const qrs_w_mod = SETTINGS_INPUTS["qrs_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_w"]?.value) : 1;
@@ -76,7 +76,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let q_i = p_i + p_w + q_w / 2 + p_q_interval;
     let r_i = q_i + q_w + r_w / 2 + 0.02;
     let s_i = r_i + r_w + s_w / 2 + 0.01;
-    let t_i = s_i + s_w + t_w / 2 + 0.20 * st_v_mod;
+    let t_i = s_i + s_w + t_w / 2 + 0.20 * st_mod;
 
     // Innate P wave
     if (snr_bpm > 0) {

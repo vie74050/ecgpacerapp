@@ -4,11 +4,11 @@ import * as HRGraph from "./HR_graphY";
 
 export function GraphY(x: number, bp_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes) {
     const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX;
-    const hr_bpm = Number(SETTINGS_INPUTS["avr_v"].value);
+    const hr_bpm = Number(SETTINGS_INPUTS['av_r'].value);
     const RPULSEX = HRGraph.RPULSEX;
     const maxH = 200;
-    const systolic_bpm = SETTINGS_INPUTS["sys_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_v"]?.value) : 120;
-    const diastolic_bpm = SETTINGS_INPUTS["dia_v"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_v"]?.value) : 60;
+    const systolic_bpm = SETTINGS_INPUTS["sys_r"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_r"]?.value) : 120;
+    const diastolic_bpm = SETTINGS_INPUTS["dia_r"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_r"]?.value) : 60;
     const rx = 60 * (w / dT) / hr_bpm;
     const pw = 0.035 * rx;
     const dh = systolic_bpm - diastolic_bpm;

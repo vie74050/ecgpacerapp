@@ -4,7 +4,7 @@
   <body>
     <section id="mon-area">
 
-      <div class="monitor-row row">
+      <div class="monitor-row row" id="ecggraph">
         <canvas id="canvashr" class="mon-graph"></canvas>
         <div id="hr_display" class="mon-display">
           <p class="label">HR</p>
@@ -13,7 +13,7 @@
         </div>
       </div>
     
-      <div class="monitor-row row">
+      <div class="monitor-row row" id="_bpgraph">
         <canvas id="canvasbp" class="mon-graph"></canvas>
         <div id="bp_display" class="mon-display">
           <p class="label">BP</p>
@@ -23,15 +23,15 @@
       </div>
     
       <div class="chart-controls row">
-        <button id="playpause_btn">Play/Pause</button>
+        <button id="playpause_btn" title="Pause or resume graphing">Play/Pause</button>
         <div>
           <label>Scale X (seconds)</label>
-          <input id="nX" type="number" min="1" max="10" step="1" value="5">
+          <input id="nX" type="number" min="1" max="10" step="1" value="5" title="Number of seconds to display in graph x-axis">
         </div>
       </div>
     </section>
     
-    <section id="pacer-controls">
+    <section id="_pacer">
       <div class="row">
         <span><label title="P fired">P</label><input id="p_detect" type="radio" disabled></span>
         <span>
@@ -85,7 +85,7 @@
       </div>
     </section>
     
-    <section id="setup-area">
+    <section id="_settings">
       <button title="Reset to default values" id="reset_btn">Reset &#8634;</button>
       <button title="Download values" id="save_btn">Save <b>&#128427;</b> </button>
       <button title="Load saved values from txt" id="load_btn">Load <b>&#128449;</b> </button>
@@ -103,12 +103,12 @@
     
             <td>SN rate (bpm)</td>
             <td>
-              <input id="snr_v" type="number" min="0" max="240" step="1" value="80">
+              <input id='sn_r' type="number" min="0" max="240" step="1" value="80">
               <br />
               irregular?<input id="snr_cb" type="checkbox"></td>
             <td>AV rate(bpm)</td>
             <td>
-              <input id="avr_v" type="number" min="0" max="240" step="1" value="80">
+              <input id='av_r' type="number" min="0" max="240" step="1" value="80">
               <br />
               irregular?<input id="avr_cb" type="checkbox"></td>
     
@@ -143,7 +143,7 @@
     
           <tr>
             <td>ST segment</td>
-            <td><input id="st_v" type="number" min="-2" max="2" step=".1" value="1"></td>
+            <td><input id='st_v' type="number" min="-2" max="2" step=".1" value="1"></td>
             <td>T duration</td>
             <td><input id="t_w" type="number" min="0" max="3" step=".1" value="1"></td>
           </tr>
@@ -184,9 +184,9 @@
     
           <tr>
             <td>Systolic</td>
-            <td><input id="sys_v" type="number" min="30" max="240" step="1" value="100"></td>
+            <td><input id="sys_r" type="number" min="30" max="240" step="1" value="100"></td>
             <td>Diastolic</td>
-            <td><input id="dia_v" type="number" min="30" max="240" step="1" value="60"></td>
+            <td><input id="dia_r" type="number" min="30" max="240" step="1" value="60"></td>
           </tr>
     
         </tbody>

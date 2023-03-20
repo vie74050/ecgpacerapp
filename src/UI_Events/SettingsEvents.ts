@@ -40,7 +40,7 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
 
     const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById('hide_settings_btn');
     hide_settings_btn.onclick = (event: Event) => {
-        var target = document.getElementById('setup-area');
+        var target = document.getElementById('_settings');
         target.classList.toggle('_mini');
     }
 
@@ -63,17 +63,17 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
         let key = (event.target as HTMLInputElement).value;
         const contents = rhythms[key];
         if (contents) {
-            setContent(key, contents, SETTINGS_INPUTS);
+            SetContent(key, contents, SETTINGS_INPUTS);
         }
         //console.log(contents);
     };
 
-    const snr_btn = SETTINGS_INPUTS['snr_v'];
+    const snr_btn = SETTINGS_INPUTS['sn_r'];
     snr_btn.onchange = (event: Event) => {
-        SETTINGS_INPUTS['avr_v'].value = snr_btn.value;
+        SETTINGS_INPUTS['av_r'].value = snr_btn.value;
     };
 
-    const sys_btn = SETTINGS_INPUTS['sys_v'];
+    const sys_btn = SETTINGS_INPUTS['sys_r'];
     sys_btn.onchange = (event: Event) => {
         let newV = Number((event.target as HTMLInputElement).value);
         DISPLAY_ELEMS['sys_display_v'].textContent = newV.toString();
@@ -81,7 +81,7 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
     sys_btn.defaultValue = sys_btn.value;
     sys_btn.dispatchEvent(new Event('change'));
 
-    const dia_btn = SETTINGS_INPUTS['dia_v'];
+    const dia_btn = SETTINGS_INPUTS['dia_r'];
     dia_btn.onchange = (event: Event) => {
         let newV = Number((event.target as HTMLInputElement).value);
         DISPLAY_ELEMS['dia_display_v'].textContent = newV.toString();
@@ -114,7 +114,7 @@ function load(SETTINGS_INPUTS: IDomInputNodes) {
             let content = readerEvent.target.result; 
             if (content) {
                 let data = JSON.parse(content as string);
-                setContent(file.name, data, SETTINGS_INPUTS);
+                SetContent(file.name, data, SETTINGS_INPUTS);
             }
         }
     }
@@ -135,7 +135,7 @@ function resetInputsToDefault() {
 /** Applies the data to settings inputs.
  *  Adds to Settings Presets options if new.
  */
-function setContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
+export function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
     let k: keyof typeof data;
     for (k in data) {
         // set Settings
@@ -156,7 +156,8 @@ function setContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
             newoption.value = fname;
             newoption.textContent = data['title']? data['title'] : fname;
 
-        presets_sel.add(newoption);
+        //loaded element will be added to top -- becomes new default data for reset    
+        presets_sel.add(newoption, presets_sel.options[0]);
         presets_sel.value = fname;
         //console.log(rhythms);
 

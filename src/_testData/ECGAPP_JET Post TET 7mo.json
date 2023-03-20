@@ -1,0 +1,22 @@
+{
+  "sn_r": "180",
+  "snr_cb": false,
+  "av_r": "180",
+  "avr_cb": false,
+  "p_h": "1.5",
+  "qrs_h": "0.5",
+  "pr_v": "-5",
+  "qrs_w": "0.5",
+  "pr_cb": false,
+  "qrs_n": "0",
+  "qrs_cb": false,
+  "st_v": "0.5",
+  "t_w": "2",
+  "s_h": "1",
+  "t_h": "1.4",
+  "a_out_min": "0",
+  "v_out_min": "0",
+  "sys_r": "100",
+  "dia_r": "60",
+  "title": "JET Post TET 7mo"
+}
