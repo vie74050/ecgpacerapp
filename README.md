@@ -199,6 +199,14 @@ Run `npm run start` to start webpack in dev mode
 > Starts local server using port 8080, `localhost:8080`
 > Watches for changes  
 
+#### CLI helpers
+
+Command line helpers for processing data should be in the `cli` folder. Not required for app functionality; just dev helpers.
+
+1. Run `node cli/MakeURL.js`
+
+- Outputs a URL with the settings options provided at prompt (copy/paste saved text string or manually enter)
+
 ### Production
 
 Run `npm run build` for production
