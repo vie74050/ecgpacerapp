@@ -49,8 +49,8 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
     const url_btn = document.getElementById('url_btn');
     url_btn.onclick = (event: Event) => {
         let root = window.location.origin 
-                ? window.location.origin + '/'
-                : window.location.protocol + '/' + window.location.host + '/';
+                ? window.location.origin + window.location.pathname
+                : window.location.protocol + '/' + window.location.host + window.location.pathname;
                 
         let settings_str = Object.keys(SETTINGS_INPUTS).reduce( (acc, curr, i) => {
             const data = SETTINGS_INPUTS[curr];
