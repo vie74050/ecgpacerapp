@@ -3,6 +3,7 @@ import $ from "jquery";
 import { IDomNodes, IDomInputNodes } from "./Interfaces";
 import { getDomNodes, getDomInputNodes, GraphMonitor, findGetParameters } from "./helpers";
 import * as UIEventsSettings from "./UI_Events/SettingsEvents";
+import * as SetContent from "./UI_Events/SetContent";
 import * as UIEventsMonitor from "./UI_Events/DisplayEvents";
 import * as UIEventsPacer from "./UI_Events/PacerEvents";
 import * as HRGraph from './Presets/HR_graphY';
@@ -58,15 +59,17 @@ $(() => {
         }
 
         // check for custom rhythm settings
-        if (SETTINGS_INPUTS[v[0]]) {
+        if (SETTINGS_INPUTS[v[0]]) {    
             
             //console.log(SETTINGS_INPUTS[decodeURI(v[0])],decodeURI(v[1]));
             initdata[key] = val;
         }
+
+        if (key === 'title') initdata['title'] = val;
     });
     if (Object.keys(initdata).length>0) {
-        let title = initdata['title'] || 'Custom';
-        UIEventsSettings.SetContent(title, initdata, SETTINGS_INPUTS);
+        let title = initdata['title'] || 'Custom'; console.log(setup_params);
+        SetContent.SetContent(title, initdata, SETTINGS_INPUTS);
     }
 
 });

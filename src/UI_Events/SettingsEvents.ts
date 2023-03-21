@@ -1,5 +1,7 @@
 import { IDomNodes, IDomInputNodes } from '../Interfaces';
 import { rhythms } from '../Presets/InnateRythms';
+import { SetContent } from './SetContent';
+import $ from "jquery";
 
 export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes) {
     const reset_btn = document.getElementById('reset_btn');
@@ -16,9 +18,15 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
         let filename = '';
         let content = {};
 
-        Object.keys(SETTINGS_INPUTS).map( (k) => {
+        Object.keys(SETTINGS_INPUTS).forEach( (k) => {
             let data = SETTINGS_INPUTS[k];
-            content[k] = data.type === 'checkbox'? data.checked : data.value ;
+            let val = data.type === 'checkbox'? data.checked : data.value ;
+
+            // omit if same as default
+            if (data.type == 'checkbox' && val != data.defaultChecked
+                || val != data.defaultValue) {
+                content[k] = val;
+            }
         });
        
         do {
@@ -36,6 +44,35 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
     const load_btn = document.getElementById('load_btn');
     load_btn.onclick = (event: Event) => {
         load(SETTINGS_INPUTS);
+    }
+
+    const url_btn = document.getElementById('url_btn');
+    url_btn.onclick = (event: Event) => {
+        let root = window.location.origin 
+                ? window.location.origin + '/'
+                : window.location.protocol + '/' + window.location.host + '/';
+                
+        let settings_str = Object.keys(SETTINGS_INPUTS).reduce( (acc, curr, i) => {
+            const data = SETTINGS_INPUTS[curr];
+            let val = data.type == 'checkbox'? data.checked : data.value;
+            let newparam = acc.length==0? curr + '=' + val : '&' + curr + '=' + val;
+
+            // omit if same as default
+            if (data.type == 'checkbox' && val == data.defaultChecked
+                || val === data.defaultValue) {
+                newparam = '';
+            }
+            
+            return acc + newparam;   
+        }, "");
+        
+        let msg = root + '?settings=0';
+        msg += (settings_str.length > 0)? '&' + settings_str : '';
+     
+        if(window.confirm(msg)) {
+           window.open(msg, 'new window open');
+        };
+
     }
 
     const hide_settings_btn: HTMLSelectElement = <HTMLSelectElement>document.getElementById('hide_settings_btn');
@@ -88,6 +125,20 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
     };
     dia_btn.defaultValue = dia_btn.value;
     dia_btn.dispatchEvent(new Event('change'));
+
+    const ui_show_btns = (document.getElementsByClassName('uishow_cb')) as HTMLCollectionOf<HTMLInputElement>;
+    for (let i = 0; i < ui_show_btns.length; i++) {
+        ui_show_btns[i].onchange = (event: Event) => {
+            const targ = (event.currentTarget as HTMLInputElement);
+            const targClassname = '._' + targ.id;
+            if (targ.checked) {
+                $(targClassname)?.show(); 
+            }else {
+                $(targClassname)?.hide(); 
+            };
+        };
+    
+    }
 }
 
 /** Saves settings as json txt file to local folder. 
@@ -131,35 +182,4 @@ function resetInputsToDefault() {
         
         input.dispatchEvent(new Event('change'));
     });
-}
-/** Applies the data to settings inputs.
- *  Adds to Settings Presets options if new.
- */
-export function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes) {
-    let k: keyof typeof data;
-    for (k in data) {
-        // set Settings
-        let target = SETTINGS_INPUTS[k];
-        if (target){
-            if( target.type === 'number') target.value = data[k];
-            else if (target.type === 'checkbox') target.checked = data[k]===true || data[k]==='true';
-
-            target.dispatchEvent(new Event('change'));
-        }      
-    }
-
-    if (!(fname in rhythms)) {
-        const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
-       
-        rhythms[fname] = data;
-        let newoption = document.createElement('option') as HTMLOptionElement;
-            newoption.value = fname;
-            newoption.textContent = data['title']? data['title'] : fname;
-
-        //loaded element will be added to top -- becomes new default data for reset    
-        presets_sel.add(newoption, presets_sel.options[0]);
-        presets_sel.value = fname;
-        //console.log(rhythms);
-
-    } 
 }

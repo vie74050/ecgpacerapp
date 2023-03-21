@@ -89,18 +89,17 @@
       <button title="Reset to default values" id="reset_btn">Reset &#8634;</button>
       <button title="Download values" id="save_btn">Save <b>&#128427;</b> </button>
       <button title="Load saved values from txt" id="load_btn">Load <b>&#128449;</b> </button>
+      <button title="Create link with these settings" id="url_btn">&#128279;</button>
       <button title="Minimize settings panel" id="hide_settings_btn">&#9715;</button>
+      
       <table class="data-table">
         
         <tbody>
-          <!-- Butons -->
-    
           <tr>
             <th colspan="4">Innate Rhythm Settings</th>
           </tr>
     
           <tr>
-    
             <td>SN rate (bpm)</td>
             <td>
               <input id='sn_r' type="number" min="0" max="240" step="1" value="80">
@@ -122,7 +121,6 @@
             <td>QRS height</td>
             <td><input id="qrs_h" type="number" min="-2" max="2" step="0.1" value="1"></td>
           </tr>
-    
           <tr>
             <td title="Set PR interval multiplier">PR segment</td>
             <td><input id="pr_w" type="number" min="-10" max="10" step=".1" value="1"></td>
@@ -140,7 +138,6 @@
               <br />random? <input id="qrs_cb" type="checkbox">
             </td>
           </tr>
-    
           <tr>
             <td>ST segment</td>
             <td><input id='st_v' type="number" min="-2" max="2" step=".1" value="1"></td>
@@ -153,17 +150,18 @@
             <td>T height</td>
             <td><input id="t_h" type="number" min="-3" max="3" step=".1" value="1"></td>
           </tr>
+          <!-- Presets/InnateRhythms -->
           <tr title="Preset innate rhyths">
             <th colspan="4">
               <hr />Presets</th>
           </tr>
-    
           <tr>
             <td colspan="4">
-              <select name="innate selections" id="innate-sel"><!--Presets/InnateRhythms--></select>
+              <select name="innate selections" id="innate-sel"></select>
             </td>
           </tr>
           
+          <!-- Pacer params -->
           <tr title="Pacer pulse triggers response only if sensitivity below threshold" class="_pacer">
             <th colspan="4">
               <hr />Stimulation threshold</th>
@@ -175,9 +173,8 @@
             <td>V (mA)</td>
             <td><input id="v_out_min" type="number" min="0" max="100" step="1" value="0"></td>
           </tr>
-    
-          <!-- bp fields -->
-          <tr class="_bpgraph">
+              
+          <tr class="_bpgraph"><!-- bp params -->
             <th colspan="4">
               <hr />Blood pressure (mmHg)</th>
           </tr>
@@ -188,9 +185,21 @@
             <td>Diastolic</td>
             <td><input id="dia_r" type="number" min="30" max="240" step="1" value="60"></td>
           </tr>
-    
+
+          <tr><!-- UI options -->
+            <th colspan="4">
+              <hr />Show</th>
+          </tr>
+          <tr>
+            <td colspan="4">
+              <label>Pacer</label><input type="checkbox" id="pacer" checked class="uishow_cb">
+              <label>BP</label><input type="checkbox" id="bpgraph" checked  class="uishow_cb">
+            </td>
+          </tr>
+
         </tbody>
-      </table>
+      </table>   
+    
     </section>
     
   </body>
