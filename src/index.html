@@ -13,7 +13,7 @@
         </div>
       </div>
     
-      <div class="monitor-row row" id="_bpgraph">
+      <div class="monitor-row row" id="_bpgraph" class="_bpgraph">
         <canvas id="canvasbp" class="mon-graph"></canvas>
         <div id="bp_display" class="mon-display">
           <p class="label">BP</p>
@@ -31,7 +31,7 @@
       </div>
     </section>
     
-    <section id="_pacer">
+    <section id="_pacer" class="_pacer">
       <div class="row">
         <span><label title="P fired">P</label><input id="p_detect" type="radio" disabled></span>
         <span>
@@ -85,7 +85,7 @@
       </div>
     </section>
     
-    <section id="_settings">
+    <section id="_settings" class="_settings">
       <button title="Reset to default values" id="reset_btn">Reset &#8634;</button>
       <button title="Download values" id="save_btn">Save <b>&#128427;</b> </button>
       <button title="Load saved values from txt" id="load_btn">Load <b>&#128449;</b> </button>
@@ -164,12 +164,12 @@
             </td>
           </tr>
           
-          <tr title="Pacer pulse triggers response only if sensitivity below threshold">
+          <tr title="Pacer pulse triggers response only if sensitivity below threshold" class="_pacer">
             <th colspan="4">
               <hr />Stimulation threshold</th>
           </tr>
     
-          <tr title="Pacer pulse triggers response only if output above threshold">
+          <tr title="Pacer pulse triggers response only if output above threshold" class="_pacer">
             <td>A (mA)</td>
             <td><input id="a_out_min" type="number" min="0" max="100" step="1" value="0"></td>
             <td>V (mA)</td>
@@ -177,12 +177,12 @@
           </tr>
     
           <!-- bp fields -->
-          <tr>
+          <tr class="_bpgraph">
             <th colspan="4">
               <hr />Blood pressure (mmHg)</th>
           </tr>
     
-          <tr>
+          <tr class="_bpgraph">
             <td>Systolic</td>
             <td><input id="sys_r" type="number" min="30" max="240" step="1" value="100"></td>
             <td>Diastolic</td>

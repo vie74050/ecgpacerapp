@@ -42,8 +42,8 @@ $(() => {
     // MONITOR events
     UIEventsMonitor.Setup(hr_graph, bp_graph);
 
-    /** Hide DOM element based on URL params: id=0
-    * NB: must prefix IDs with `_` in index.html if hideable
+    /** Hide DOM element based on URL params: classid=0
+    * NB: must prefix class id with `_` in index.html if hideable
     * e.g. ?pacer=0&bpgraph=0&settings=0 
     */
     let setup_params = findGetParameters();
@@ -54,7 +54,7 @@ $(() => {
 
         // check for DOM element target, `_{id}`, to hide
         if (val==='false' || val==='none' || val==='0') {
-            $('#_'+v[0])?.hide();
+            $('._'+v[0])?.hide();
         }
 
         // check for custom rhythm settings
