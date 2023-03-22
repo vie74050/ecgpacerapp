@@ -9,27 +9,45 @@ SMEs:
 - Michelle Dunphy
 - Sarah Neville
 
-## User Manual / App Features
+## 1. How instructors set up variables for the case
+![image](https://user-images.githubusercontent.com/5272116/227010139-44b6a5be-5b99-4c89-8361-91cd7f9ab46c.png)
 
-![image](https://user-images.githubusercontent.com/5272116/226484263-2753a334-1fb5-403f-b4e6-27d97d6ebb32.png)
+### Load from file
 
-### 1. How instructors set up variables for the case
+- Prompts user to select a file from local directory
+- Loads the preset values and adds to `Preset` selection as first (default) option
 
-#### Load with optional URL parameters
+### Save to Local
+
+- Prompts user to enter a name (string) to be used as file name and title attribute
+- Save to the `Downloads` folder (based on user's web settings) as a text file
+
+### Reset
+
+Will reset all inputs in the webapp to session defaults.
+
+- Pacer settings will be reset to defaults
+- Innate rhythm settings will be reset to first item in the **Preset** options (if no custom loaded settings, Normal Sinus Rhythm at 80 is the default)
+
+### Get URL Link
+
+Will create a user link with the current Settings.  User links will not show the Settings panel.
+
+#### Loading with optional URL parameters
 
 Pass optional parameters with the URL to set UI and rhythm settings. Unset parameters use default values for *Normal Sinus Rhythm at 80 bpm*.
 
 Format: {url}?`{options}`
 
-##### Options
+#### Options
 
-###### Hide UI areas
+##### Hide UI areas
 
    > bpgraph=0  
    > pacer=0  
    > settings=0  
 
-###### Pre-Set Innate Rhythm Settings in URL
+##### Pre-Set Innate Rhythm Settings in URL
 
 Refer to `Param name(s)` associated with each variable in the docs.  
 
@@ -38,33 +56,16 @@ Refer to `Param name(s)` associated with each variable in the docs.
 - suffix `_h` (height) and `_w` (width) should be passed a number
 - suffix `_cb` (checkbox) should be passed `true` or `false`
 
-###### Example 
+##### Example 
 
 > {URL}`?sn_r=60&p_h=0&bpgraph=0&pr_cb=true`
 >
 > - Sets **SN Rate** to 60 (and AV rate follows) and **P height** to 0  
 > - Hides BP graph
 
-#### Load from file
+## **Innate Rhythm settings**
 
-- Prompts user to select a file from local directory
-- Loads the preset values and adds to `Preset` selection as first (default) option
-
-#### Save to Local
-
-- Prompts user to enter a name (string) to be used as file name and title attribute
-- Save to the `Downloads` folder (based on user's web settings) as a text file
-
-#### Reset
-
-Will reset all inputs in the webapp to session defaults.
-
-- Pacer settings will be reset
-- Innate rhythm settings will be reset to first item in the **Preset** options (if no custom loaded settings, Normal Sinus Rhythm at 80 is the default)
-
-#### **Innate Rhythm settings**
-
-##### **SN rate**
+### **SN rate**
 
 Param name: `sn_r`
 
@@ -72,7 +73,7 @@ P pulse rate.  If changed will also change **AV rate** likewise.
 
 - **Irregular option** `snr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
 
-##### **AV rate**
+### **AV rate**
 
 Param name: `av_r`  
 
@@ -80,7 +81,7 @@ Default: if unchanged, it will follow SN rate.
 
 - **Irregular option** `avr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
 
-##### **Heights** (normalized)
+### **Heights** (normalized)
 
 Param names: `p_h`, `qrs_h`, `s_h`, `t_h`
 
@@ -88,7 +89,7 @@ Multiplier for default amplitude values.
 
 > e.g. if set to 2, then peak height of the complex will be 2x the default
 
-##### **PR segment** (normalized)  
+### **PR segment** (normalized)  
 
 Param name: `pr_w`
 
@@ -96,13 +97,13 @@ Multiplier for PR segment duration (width)
 
 - **Increasing?** `pr_cb`: if checked, PR multiplier will increase each cycle and reset based on QRS drop (e.g. try Pre-set 2nd AV Block I)
 
-##### **QRS duration**
+### **QRS duration**
 
 Param name: `qrs_w`
 
 Multiplier for QRS complex duration (width)
 
-##### **QRS Drop** number (n)
+### **QRS Drop** number (n)
 
 Param name: `qrs_n`
 
@@ -114,23 +115,31 @@ e.g.
 
 - **Random?**:  If checked, then every (n) will be randomly dropped or not
 
-##### **ST Segment**
+### **ST Segment**
 
 Param name: `st_w`
 
 Multiplier for ST segment duration (width)
 
-##### **T duration**
+### **T duration**
 
 Param name: `t_w`
 
 Multiplier for T wave duration (width)
 
-#### **Pre-sets**
+### **Pre-sets**
 
 Select from the list of pre-set rhythms.  They should set the values for the Innate Rhythm Settings parameters above.
+If saved settings are loaded, the load option will be added to selection list for the session (does not persist if page reloaded).
 
-### 2. Pacer Settings
+### **Simulation Threshold**
+
+Represents the innate mA required to stimulate a response.  
+i.e. The corresponding pacer Output mA must be >= than the threshold in order for a pulse to stimulate a triggered response. 
+
+---
+
+## 2. Pacer Settings
 
 Where user (student) adjust pacemaker settings to view changes
 
@@ -145,7 +154,9 @@ Need to define the base rhythm and key points that will interact with pacemaker 
     ii. Chamber sensed: A, V, D, O
     iii. Response to sensed: T, I D
 
-### 3. Monitor Settings
+---
+
+## 3. Monitor Settings
 
 Output graph and vital signs
 
