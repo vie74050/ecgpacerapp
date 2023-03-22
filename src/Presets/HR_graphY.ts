@@ -2,9 +2,9 @@ import { IDomNodes, IDomInputNodes } from "../Interfaces";
 import { Pulse, getRandomInt, GraphMonitor } from "../helpers";
 
 export var SN_VAR: number = 0,
-    AV_VAR: number = 0,
-    QRS_VAR: number = 0,
-    RPULSEX = 0; // x when r pulsed
+            AV_VAR: number = 0,
+            QRS_VAR: number = 0,
+            RPULSEX = 0; // x when r pulsed
  
 export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
@@ -123,12 +123,25 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const a_i = (p_i) * (w / dT);
     let a = 0, a_h = 60;
     if ((x - a_i) % (dx3ps) < 1 && apacing) {
-        if (!asensing || asensing && !asensed) a = a_h;
+        if (!asensing || asensing && !asensed) {
+            a = a_h;
+        };
     }
 
     // A Response
-    if (apacing && atrigger && !asensed && p<=0) { console.log('triggering a response');
-        p = Pulse(x, a_i + 2*p_w * (w / dT) + n3 * dx3ps, 10, 0.01*dx3ps);
+    if (apacing && atrigger && !asensed && Math.round(-p)<=0) { //console.log('triggering a response', p);
+        p_i = a_i + 2*p_w * (w / dT);//pixels
+        q_i = p_i + (p_w + q_w / 2 + p_q_interval) * (w / dT);
+        r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
+        s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
+        t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
+        p = Pulse(x, p_i + n3 * dx3ps, 10, 0.01*dx3ps);
+
+        // trigger innate qrst ?
+        q = Pulse(x, q_i + AV_VAR + n3 * dx3ps, q_h * noise * drop, q_w * (w / dT));
+        r = Pulse(x, r_i + AV_VAR + n3 * dx3ps, r_h * noise * drop, r_w * (w / dT));
+        s = Pulse(x, s_i + AV_VAR + n3 * dx3ps, s_h * noise * drop, s_w * (w / dT));
+        t = Pulse(x, t_i + AV_VAR + n3 * dx3ps, t_h * noise * drop, t_w * (w / dT));
     }
 
     //** PACER V PULSE & RESPONSE **//
