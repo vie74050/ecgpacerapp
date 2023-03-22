@@ -5,7 +5,7 @@ export var SN_VAR: number = 0,
     AV_VAR: number = 0,
     QRS_VAR: number = 0,
     RPULSEX = 0; // x when r pulsed
-
+ 
 export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
     const maxH_mV = 25; // y-axis in mV --> 0.5 h in px
@@ -16,7 +16,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const avr_bpm = SETTINGS_INPUTS['av_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['av_r']?.value) : 60;
     const p_h_mod = SETTINGS_INPUTS["p_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["p_h"]?.value) : 1;
     const pr_w_mod = SETTINGS_INPUTS["pr_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["pr_w"]?.value) : 1;
-    const st_mod = SETTINGS_INPUTS['st_v']?.value != 'undefined' ? Number(SETTINGS_INPUTS['st_v']?.value) : 1;
+    const st_mod = SETTINGS_INPUTS['st_w']?.value != 'undefined' ? Number(SETTINGS_INPUTS['st_w']?.value) : 1;
     const t_w_mod = SETTINGS_INPUTS["t_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_w"]?.value) : 1;
     const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value) || 0;
     const qrs_w_mod = SETTINGS_INPUTS["qrs_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_w"]?.value) : 1;
@@ -41,14 +41,12 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const dx = x % w;
 
     // bpm --> bps --> pxps
-    const dxps = (60 / snr_bpm) * (w / dT) || 0,
-        dx2ps = (60 / avr_bpm) * (w / dT) || 0,
-        dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
+    const dx1ps = (60 / snr_bpm) * (w / dT) || 0,
+          dx2ps = (60 / avr_bpm) * (w / dT) || 0; 
 
     //** INNATE RHYTHM **//
-    const n1 = Math.floor(x / dxps) || 0,
-        n2 = Math.floor(x / dx2ps) || 0,
-        n3 = Math.floor(x / dx3ps) || 0;
+    const n1 = Math.floor(x / dx1ps) || 0,
+          n2 = Math.floor(x / dx2ps) || 0;
 
     let p = 0, q = 0, r = 0, s = 0.000, t = 0;
 
@@ -72,7 +70,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
     let p_q_interval = 0.04 * pr_w_mod * pq_multiplier;
 
-    let p_i = p_w / 2 + 0.2;
+    let p_i = p_w / 2 + 0.2; 
     let q_i = p_i + p_w + q_w / 2 + p_q_interval;
     let r_i = q_i + q_w + r_w / 2 + 0.02;
     let s_i = r_i + r_w + s_w / 2 + 0.01;
@@ -82,12 +80,12 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     if (snr_bpm > 0) {
 
         // update params on new SN beat
-        if (Math.floor((hr_graph.X - 1) / dxps) != n1) {
+        if (Math.floor((hr_graph.X - 1) / dx1ps) != n1) {
             // arrhythmia due to variable sn node rate +/- 25%
-            SN_VAR = snr_cb ? 0.75 * dxps * Math.random() * 0.25 + 1 : 0;
+            SN_VAR = snr_cb ? 0.75 * dx1ps * Math.random() * 0.25 + 1 : 0;
         };
 
-        p = Pulse(x, p_i * (w / dT) + n1 * dxps + SN_VAR, p_h * noise, p_w * (w / dT));
+        p = Pulse(x, p_i * (w / dT) + n1 * dx1ps + SN_VAR, p_h * noise, p_w * (w / dT));
 
     }
 
@@ -113,25 +111,24 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     }
 
     //** PACER A PULSE & RESPONSE **//
-
-    //const innateP_mV = Pulse(p_i * (w / dT) + n1 * dxps + SN_VAR, p_i * (w / dT) + n1 * dxps + SN_VAR, p_h, p_w * (w / dT)); 
+    const dx3ps = (60 / pacer_bpm) * (w / dT) || 0
+    const n3 = Math.floor(x / dx3ps) || 0
+        
     let apacing = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;
-    let asensing = !PACER_INPUTS["a_sense"].disabled;   //@TODO - , simulated fail to pace  
-    let atrigger = a_out_mA > 0 && a_out_mA >= aout_min;  //@TODO - simulated fail to capture
-    let asensed = -p >= asense_mV; //@todo if innate P > asense_mV normalized -- MAGNITUDE ONLY? Maybe look at rate dx..?
+    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;          //@TODO - simulated fail to pace  
+    let atrigger = a_out_mA > 0 && a_out_mA >= aout_min;                        //@TODO - simulated fail to capture
+    let asensed = -p >= asense_mV;                                              //@TODO - simulate fail to sense
 
     // A Pulse	
+    const a_i = (p_i) * (w / dT);
     let a = 0, a_h = 60;
-    if (x % (dx3ps) < 1) {
-        if (apacing && !asensing || apacing && asensing && !asensed) a = a_h;
-        if (apacing && asensing && asensed) a = -a_h;
-        //console.log("A pulse: ", Math.abs(p), a);
+    if ((x - a_i) % (dx3ps) < 1 && apacing) {
+        if (!asensing || asensing && !asensed) a = a_h;
     }
+
     // A Response
-    const a_i = 0.04;
-    if (apacing && atrigger && !asensed) { //console.log('triggering a');
-        p_i = (a_i) * (w / dT);
-        p = Pulse(x, p_i + n3 * dx3ps, 2 * p_h, p_w * (w / dT));
+    if (apacing && atrigger && !asensed && p<=0) { console.log('triggering a response');
+        p = Pulse(x, a_i + 2*p_w * (w / dT) + n3 * dx3ps, 10, 0.01*dx3ps);
     }
 
     //** PACER V PULSE & RESPONSE **//
@@ -143,8 +140,8 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     // V Pulse
     let v = 0, v_h = 80;
     const v_i = p_i + 4 * p_w * (w / dT); //@TODO: Question re: v_i    
-    if ((x - v_i) % (dx3ps) < 1) {
-        if (vpacing && !vsensing) v = v_h;
+    if ((x - v_i) % (dx3ps) < 1 && vpacing) {
+        if (!vsensing) v = v_h;
     }
     // V Response
     if (vpacing && vtrigger) { //console.log('triggering v');        
@@ -167,11 +164,11 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         t = Pulse(x, t_i + n3 * dx3ps, t_h, t_w);
     }
 
-    let y = a + p + v + q + r + s + t;
+    let y = a + p + q + r + s + t;
 
     // UI OUTPUT VARS
     p_detect.checked = a > 0 || v > 0;
-    //@TODO s_detect.checked = p_h > 0 || v > 0;
+    s_detect.checked = asensing && (asensed);
 
     // Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
     if (Math.abs(r) > Math.abs(0.9 * r_h)) {
