@@ -1,6 +1,9 @@
 import { IDomInputNodes } from "../Interfaces";
 
-export function Setup(PACER_INPUTS: IDomInputNodes) {
+enum modes {o,i,t,d};
+export var ResponseMode: modes;
+
+export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
     const pacer_mode_btn = document.getElementById("pacer_mode");
      pacer_mode_btn.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
@@ -48,17 +51,10 @@ export function Setup(PACER_INPUTS: IDomInputNodes) {
                 break;
         }
        
-        switch (chars[2]) { //@TODO
-            case 'i':
-                break;
-            case 'd':
-                break;
-            case 't':
-            case 'o':
-            default:
-                break;
-        }
+        ResponseMode = modes[chars[2]];
+       
+        nX.dispatchEvent(new Event('change')); // redraw graphs
+
      }
      pacer_mode_btn.dispatchEvent(new Event('change'));
-
 }

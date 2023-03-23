@@ -1,14 +1,20 @@
 import { IDomNodes, IDomInputNodes } from "../Interfaces";
-import { Pulse, getRandomInt, GraphMonitor } from "../helpers";
+import { Pulse, getRandomInt } from "../helpers";
+import { GraphMonitor } from "../GraphMonitor";
+import * as Pacer from "../UI_Events/PacerEvents";
 
 export var SN_VAR: number = 0,
             AV_VAR: number = 0,
             QRS_VAR: number = 0,
-            RPULSEX = 0; // x when r pulsed
+            RPULSEX = 0, // latest x when R 
+            PPULSEX = 0, // latest x when P
+            APULSEX = 0,
+            VPULSEX = 0,
+            RRPrevX = 0;
  
 export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
-    const maxH_mV = 25; // y-axis in mV --> 0.5 h in px
+    const maxH_mV = 50; // y-axis in mV --> full h in px
 
     // Get values from page
     // settings vars
@@ -28,15 +34,19 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked || false;
     const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked || false;
     const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked || false;
+    
     // pacer vars
     const p_detect = PACER_INPUTS["p_detect"];
     const s_detect = PACER_INPUTS["s_detect"];
     const pacer_bpm = PACER_INPUTS["pacer_rate"]?.value != 'undefined' ? Number(PACER_INPUTS["pacer_rate"].value) : 80;
     const aout_min = Number(SETTINGS_INPUTS["a_out_min"]?.value) || 0;
-    const vout_min = Number(SETTINGS_INPUTS["v_out_min"]?.value) || 0;
     const a_out_mA = Number(PACER_INPUTS["a_out"]?.value) || 0;
-    const v_out_mA = Number(PACER_INPUTS["v_out"]?.value) || 0;
     const asense_mV = Number(PACER_INPUTS["a_sense"]?.value) || 0;
+
+    const responsemode = Pacer.ResponseMode;
+    const vout_min = Number(SETTINGS_INPUTS["v_out_min"]?.value) || 0;
+    const v_out_mA = Number(PACER_INPUTS["v_out"]?.value) || 0;
+    
     const vsense_mV = Number(PACER_INPUTS["v_sense"]?.value) || 0;
     const dx = x % w;
 
@@ -76,6 +86,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let s_i = r_i + r_w + s_w / 2 + 0.01;
     let t_i = s_i + s_w + t_w / 2 + 0.20 * st_mod;
 
+    let p_dx_max = p_i * (w / dT) + n1 * dx1ps + SN_VAR;
     // Innate P wave
     if (snr_bpm > 0) {
 
@@ -85,8 +96,15 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
             SN_VAR = snr_cb ? 0.75 * dx1ps * Math.random() * 0.25 + 1 : 0;
         };
 
-        p = Pulse(x, p_i * (w / dT) + n1 * dx1ps + SN_VAR, p_h * noise, p_w * (w / dT));
-
+        p = Pulse(x, p_dx_max, p_h * noise, p_w * (w / dT));
+        
+        if ( Math.floor(x - p_dx_max) == -5) { 
+            
+            if (-p>0) {
+                hr_graph.Label("p", dx, 80, 8);
+                PPULSEX = x;
+            }; 
+        }
     }
 
     // Innate QRST
@@ -101,102 +119,161 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
         };
 
+        let r_dx_max = r_i * (w / dT) + n2 * dx2ps + AV_VAR;
         q = Pulse(x, q_i * (w / dT) + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
-        r = Pulse(x, r_i * (w / dT) + n2 * dx2ps + AV_VAR, r_h * noise * drop, r_w * (w / dT));
+        r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i * (w / dT) + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
         t = Pulse(x, t_i * (w / dT) + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));
 
-        //let v = Pulse(x-0.2*dx2ps,0.1*pr_w_mod*dx2ps+n2*dx2ps, 50, 2) + Pulse(x-0.2*dx2ps,5+n2*dx2ps, 100, 2);; 		
-        //console.log(n2, dx2ps, dT);
+        if ( Math.floor(x - r_dx_max) == 0) { 
+            
+            if (-r>0) {
+                hr_graph.Label("r", dx-10, 40, 8); //console.log(r);
+                RPULSEX = x;
+            }; 
+        }
+        
     }
 
     //** PACER A PULSE & RESPONSE **//
     const dx3ps = (60 / pacer_bpm) * (w / dT) || 0
     const n3 = Math.floor(x / dx3ps) || 0
         
-    let apacing = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;
-    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;          //@TODO - simulated fail to pace  
-    let atrigger = a_out_mA > 0 && a_out_mA >= aout_min;                        //@TODO - simulated fail to capture
-    let asensed = -p >= asense_mV;                                              //@TODO - simulate fail to sense
-
+    let apace = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;             //@TODO - fail to pace 
+    let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail to capture
+    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;          //@TODO - fail to sense 
+    let asensitivity = p_h/h * maxH_mV > asense_mV ;          
+    let asensed = asensing 
+                    && asensitivity && -p>0
+                    && x - PPULSEX < dx3ps;    
+   
     // A Pulse	
-    const a_i = (p_i) * (w / dT);
     let a = 0, a_h = 60;
-    if ((x - a_i) % (dx3ps) < 1 && apacing) {
-        if (!asensing || asensing && !asensed) {
-            a = a_h;
-        };
-    }
+                   
+    s_detect.checked = false;
+    p_detect.checked = false;
 
-    // A Response
-    if (apacing && atrigger && !asensed && Math.round(-p)<=0) { //console.log('triggering a response', p);
-        p_i = a_i + 2*p_w * (w / dT);//pixels
+    let offseta = (p_i  - 5 * p_w ) * (w / dT);
+
+    if (x > offseta && apace) {
+
+        //console.log( p_h / h * maxH_mV , !asensitivity);
+        if (!asensing || !asensitivity) {
+            if ( (x - offseta) % dx3ps < 1 ) {
+                a = a_h;
+                hr_graph.Label("A", dx, 20); 
+                //console.log("pacing");
+                APULSEX = x;
+            }
+        } else { // a sensing
+            
+            if ( (x -  PPULSEX) % (dx3ps) < 1 ) {               
+                if (asensed && (responsemode == 1 || responsemode == 3)) {
+                    hr_graph.Label("as", dx, 20);
+                    s_detect.checked = true;
+                }else {
+                    a = a_h;
+                    hr_graph.Label("A", dx, 20); 
+                    p_detect.checked = true ;
+                    APULSEX = x;
+                }   
+                //@TODO trigger or dual modes?                
+            }
+        }
+    }  
+    
+    // A Response Curves
+    if (apace && acapture && !asensed) { 
+        
+        p_i = APULSEX + 5;//offseta + n3 * dx3ps + 10;//pixels
         q_i = p_i + (p_w + q_w / 2 + p_q_interval) * (w / dT);
         r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
         s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
         t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
-        p = Pulse(x, p_i + n3 * dx3ps, 10, 0.01*dx3ps);
-
+       
+        p += Pulse(x, p_i, 30, 0.01*dx3ps); //console.log(n3, Math.floor(p_i));
+        
         // trigger innate qrst ?
-        q = Pulse(x, q_i + AV_VAR + n3 * dx3ps, q_h * noise * drop, q_w * (w / dT));
-        r = Pulse(x, r_i + AV_VAR + n3 * dx3ps, r_h * noise * drop, r_w * (w / dT));
-        s = Pulse(x, s_i + AV_VAR + n3 * dx3ps, s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i + AV_VAR + n3 * dx3ps, t_h * noise * drop, t_w * (w / dT));
+        q = Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT));
+        r = Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT));
+        s = Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT));
+        t = Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT));
     }
 
-    //** PACER V PULSE & RESPONSE **//
-    let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;
-    let vsensing = !PACER_INPUTS["v_sense"].disabled; //@TODO - look if vsense_mV normalized > innate QRST, simulated fail to pace...etc. 
-    let vtrigger = v_out_mA > 0 && v_out_mA >= vout_min; //@TODO - simulated fail to capture
-    let vsensed = q_h / h * maxH_mV >= vsense_mV || r_h / h * maxH_mV >= vsense_mV || s_h / h * maxH_mV >= vsense_mV || t_h / h * maxH_mV >= vsense_mV;
+/** PACER V PULSE & RESPONSE **/
+    let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
+    let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
+    let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
+    let vsensitivity = r_h/h * maxH_mV > vsense_mV;  console.log(r_h/h * maxH_mV);
+    let vsensed =  vsensing 
+                    && vsensitivity
+                    && x - RPULSEX < dx3ps;                                   
 
     // V Pulse
     let v = 0, v_h = 80;
-    const v_i = p_i + 4 * p_w * (w / dT); //@TODO: Question re: v_i    
-    if ((x - v_i) % (dx3ps) < 1 && vpacing) {
-        if (!vsensing) v = v_h;
+
+    const offsetv = offseta + 10 * p_w * (w / dT);     
+
+    if (x > offsetv && vpacing) {
+        if (!vsensing || !vsensitivity) {
+            if ( (x - offsetv) % dx3ps < 1) {
+                v = v_h;
+                hr_graph.Label("V", dx, 20);
+                VPULSEX = x;
+            }
+        }else{
+            if ((x - RPULSEX) % (dx3ps) < 1) {
+                //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
+                if (vsensed && (responsemode == 1 || responsemode == 3)) {
+                    hr_graph.Label("vs", dx, 20);
+                    s_detect.checked = true; //console.log("vsensed");
+                }else {
+                    v = v_h;
+                    hr_graph.Label("V", dx, 20);
+                    p_detect.checked = true;
+                    VPULSEX = x;
+                }
+            }
+        }
     }
+    
     // V Response
-    if (vpacing && vtrigger) { //console.log('triggering v');        
+    if (vpacing && vcapture && !vsensed) { //console.log('triggering v');        
+        
+        r_h = -50 * noise;
+        r_w = 0.04* dx3ps;
+        r_i = VPULSEX+10;
 
-        r_h = -60 * noise;
-        r_w = 0.06 * dx3ps;
-        r_i = v_i + 5 * r_w;
+        t_h = 25 * noise;
+        t_w = 0.08 * dx3ps;
+        t_i = r_i + 2 * t_w;
 
-        s_h = -40 * noise;
-        s_w = 0.02 * dx3ps;
-        s_i = r_i + 4 * s_w;
-
-        t_h = 30 * noise;
-        t_w = 0.1 * dx3ps;
-        t_i = r_i + 1.5 * t_w;
-
-        q = 0;
-        r = Pulse(x, r_i + n3 * dx3ps, r_h, r_w);
-        s = Pulse(x, s_i + n3 * dx3ps, s_h, s_w);
-        t = Pulse(x, t_i + n3 * dx3ps, t_h, t_w);
+        r = Pulse(x, r_i, r_h, r_w);
+        t = Pulse(x, t_i, t_h, t_w);
+        
     }
 
-    let y = a + p + q + r + s + t;
+    let y = a + p + v + q + r + s + t;
 
     // UI OUTPUT VARS
-    p_detect.checked = a > 0 || v > 0;
-    s_detect.checked = asensing && (asensed);
-
-    // Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
-    if (Math.abs(r) > Math.abs(0.9 * r_h)) {
-        let offset = 0.15 * dx2ps;
-        let deltaRx = x - RPULSEX + offset;
-
-        // update displayed HR
-        if (deltaRx > offset && RPULSEX > 0) {
-            let HR: number = deltaRx > 0 ? (w / dT) / deltaRx * 60 : avr_bpm;
-            DISPLAY_ELEMS["hr_display_v"].textContent = Math.round(HR).toString();
+    
+    // Update R-R interval, HR
+    if ( x == RPULSEX || x == VPULSEX ) {
+       
+        if (RPULSEX != RRPrevX) {
+            let bpm = (60/((RPULSEX - RRPrevX)*dT/w));
+            let deltaRRx = Math.round( bpm );
+            updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
+            RRPrevX = RPULSEX;
         }
 
-        RPULSEX = x + offset;
-        //Math.floor(dT*dx/w) --> count seconds loop graph
     }
+    
+    // @TODO Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
+    
+    return Math.min(y + h / 2, h);
+}
 
-    return y + h / 2;
+function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
+    DISPLAY_ELEMS["hr_display_v"].textContent = hr.toString();
 }

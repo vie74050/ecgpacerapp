@@ -1,7 +1,8 @@
 import './scss/styles.scss';
 import $ from "jquery";
 import { IDomNodes, IDomInputNodes } from "./Interfaces";
-import { getDomNodes, getDomInputNodes, GraphMonitor, findGetParameters } from "./helpers";
+import { getDomNodes, getDomInputNodes, findGetParameters } from "./helpers";
+import { GraphMonitor } from "./GraphMonitor";
 import * as UIEventsSettings from "./UI_Events/SettingsEvents";
 import * as SetContent from "./UI_Events/SetContent";
 import * as UIEventsMonitor from "./UI_Events/DisplayEvents";
@@ -19,7 +20,7 @@ $(() => {
     //console.log(`settings:`, SETTINGS_INPUTS);
 
     const PACER_INPUTS: IDomInputNodes = getDomInputNodes("#_pacer input"); 
-    //console.log(`pacer_settings:`, PACER_INPUTS);
+    console.log(`pacer_settings:`, PACER_INPUTS);
     
     const nX = <HTMLInputElement>document.getElementById("nX");   
 
@@ -35,7 +36,7 @@ $(() => {
     }
 
     // PACER events
-    UIEventsPacer.Setup(PACER_INPUTS);
+    UIEventsPacer.Setup(PACER_INPUTS, nX);
 
     // SETTINGS events
     UIEventsSettings.Setup(DISPLAY_ELEMS, SETTINGS_INPUTS);

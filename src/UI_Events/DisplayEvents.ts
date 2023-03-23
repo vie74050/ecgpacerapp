@@ -1,4 +1,4 @@
-import { GraphMonitor } from "../helpers";
+import { GraphMonitor } from "../GraphMonitor";
 
 export function Setup(hr_graph: GraphMonitor, bp_graph: GraphMonitor) {
     const pp_btn = document.getElementById("playpause_btn");

@@ -1,5 +1,6 @@
 import { IDomInputNodes } from "../Interfaces";
-import { Pulse, GraphMonitor } from "../helpers";
+import { Pulse } from "../helpers";
+import { GraphMonitor } from "../GraphMonitor";
 import * as HRGraph from "./HR_graphY";
 
 export function GraphY(x: number, bp_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes) {
