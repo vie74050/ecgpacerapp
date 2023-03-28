@@ -2,6 +2,7 @@ import { IDomNodes, IDomInputNodes } from "../Interfaces";
 import { Pulse, getRandomInt } from "../helpers";
 import { GraphMonitor } from "../GraphMonitor";
 import * as Pacer from "../UI_Events/PacerEvents";
+import * as Ref from "./ReferenceDefaults";
 
 export var SN_VAR: number = 0,
             AV_VAR: number = 0,
@@ -11,10 +12,19 @@ export var SN_VAR: number = 0,
             APULSEX = 0,
             VPULSEX = 0,
             RRPrevX = 0;
- 
+export function reset(){
+    SN_VAR = 0,
+    AV_VAR = 0,
+    QRS_VAR = 0,
+    RPULSEX = 0, // latest x when R 
+    PPULSEX = 0, // latest x when P
+    APULSEX = 0,
+    VPULSEX = 0,
+    RRPrevX = 0;
+} 
 export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
-    const maxH_mV = 50; // y-axis in mV --> full h in px
+    const maxH_mV = 10; // y-axis in mV --> full h in px
 
     // Get values from page
     // settings vars
@@ -61,30 +71,30 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let p = 0, q = 0, r = 0, s = 0.000, t = 0;
 
     // default amplitudes
-    let p_h = 10 * p_h_mod,
-        q_h = -10 * qrs_h_mod,
-        r_h = 60 * qrs_h_mod,
-        s_h = -20 * s_h_mod,
-        t_h = 10 * t_h_mod;
+    let p_h = Ref.p.h * p_h_mod,
+        q_h = Ref.q.h * qrs_h_mod,
+        r_h = Ref.r.h * qrs_h_mod,
+        s_h = Ref.s.h * s_h_mod,
+        t_h = Ref.t.h * t_h_mod;
     let noise = Math.random() * 0.2 + 1;
 
     // default durations (seconds)
-    let p_w = 0.012,
-        q_w = 0.005 * qrs_w_mod,
-        r_w = 0.009 * qrs_w_mod,
-        s_w = 0.010 * qrs_w_mod,
-        t_w = 0.040 * t_w_mod;
+    let p_w = Ref.p.w,
+        q_w = Ref.q.w * qrs_w_mod,
+        r_w = Ref.r.w * qrs_w_mod,
+        s_w = Ref.s.w * qrs_w_mod,
+        t_w = Ref.t.w * t_w_mod;
 
     let qrs_drop_counter = qrs_n > 0 ? n2 % (qrs_n + QRS_VAR) : n2 + 1;
     let drop = !(qrs_drop_counter > 0) ? 0 : 1;
     let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
-    let p_q_interval = 0.04 * pr_w_mod * pq_multiplier;
+    let p_q_interval = Ref.pq.w * pr_w_mod * pq_multiplier;
 
     let p_i = p_w / 2 + 0.2; 
     let q_i = p_i + p_w + q_w / 2 + p_q_interval;
     let r_i = q_i + q_w + r_w / 2 + 0.02;
     let s_i = r_i + r_w + s_w / 2 + 0.01;
-    let t_i = s_i + s_w + t_w / 2 + 0.20 * st_mod;
+    let t_i = s_i + s_w + t_w / 2 + Ref.st.w * st_mod;
 
     let p_dx_max = p_i * (w / dT) + n1 * dx1ps + SN_VAR;
     // Innate P wave
@@ -136,13 +146,13 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     }
 
     //** PACER A PULSE & RESPONSE **//
-    const dx3ps = (60 / pacer_bpm) * (w / dT) || 0
-    const n3 = Math.floor(x / dx3ps) || 0
+    const dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
+    //const n3 = Math.floor(x / dx3ps) || 0
         
     let apace = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;             //@TODO - fail to pace 
     let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail to capture
-    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;          //@TODO - fail to sense 
-    let asensitivity = p_h/h * maxH_mV > asense_mV ;          
+    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;        //@TODO - fail to sense 
+    let asensitivity = p_h/h * maxH_mV > asense_mV ;       
     let asensed = asensing 
                     && asensitivity && -p>0
                     && x - PPULSEX < dx3ps;    
@@ -156,8 +166,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let offseta = (p_i  - 5 * p_w ) * (w / dT);
 
     if (x > offseta && apace) {
-
-        //console.log( p_h / h * maxH_mV , !asensitivity);
+        //console.log(p_h/h * maxH_mV, p_h, h, p_w, w, dT) ; 
         if (!asensing || !asensitivity) {
             if ( (x - offseta) % dx3ps < 1 ) {
                 a = a_h;
@@ -204,7 +213,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
     let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
     let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
-    let vsensitivity = r_h/h * maxH_mV > vsense_mV;  console.log(r_h/h * maxH_mV);
+    let vsensitivity = r_h/h * maxH_mV > vsense_mV;  
     let vsensed =  vsensing 
                     && vsensitivity
                     && x - RPULSEX < dx3ps;                                   
