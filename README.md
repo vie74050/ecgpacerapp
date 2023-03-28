@@ -188,7 +188,7 @@ Used for rapid prototyping:
 #### Other references
 
 1. ECG interval nomenclature based on: <https://litfl.com/pr-interval-ecg-library/>
-2. “normal” values: <https://www.nottingham.ac.uk/nursing/practice/resources/cardiology/function/normal_duration.php>
+2. “normal” values: <https://ptreviewer.com/electrocardiogram-ecg-2/reading-an-ecg/>
 3. Pacemaker  
    i. Interpretation of Pacemaker ECG: <https://ecgwaves.com/topic/ecg-pacemaker-rhythm-malfunction-failure-tachyarrhythmia/>  
    ii. Assessment of Pacemaker Malfunction: <https://ecgwaves.com/topic/assessment-of-pacemaker-malfunction-using-ecg/>
