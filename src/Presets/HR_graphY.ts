@@ -11,16 +11,19 @@ export var SN_VAR: number = 0,
             PPULSEX = 0, // latest x when P
             APULSEX = 0,
             VPULSEX = 0,
-            RRPrevX = 0;
+            RRPrevX = 0,
+            HR_BPM = 0;
+
 export function reset(){
-    SN_VAR = 0,
-    AV_VAR = 0,
-    QRS_VAR = 0,
-    RPULSEX = 0, // latest x when R 
-    PPULSEX = 0, // latest x when P
-    APULSEX = 0,
-    VPULSEX = 0,
+    SN_VAR = 0;
+    AV_VAR = 0;
+    QRS_VAR = 0;
+    RPULSEX = 0; // latest x when R 
+    PPULSEX = 0; // latest x when P
+    APULSEX = 0;
+    VPULSEX = 0;
     RRPrevX = 0;
+    HR_BPM = 0;
 } 
 export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
@@ -267,15 +270,19 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     // UI OUTPUT VARS
     
     // Update R-R interval, HR
-    if ( x == RPULSEX || x == VPULSEX ) {
-       
-        if (RPULSEX != RRPrevX) {
-            let bpm = (60/((RPULSEX - RRPrevX)*dT/w));
-            let deltaRRx = Math.round( bpm );
-            updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
-            RRPrevX = RPULSEX;
-        }
-
+    let bpm = avr_bpm;
+    let deltaRRx = Math.round( bpm );
+    if ( x == RPULSEX  && RPULSEX != RRPrevX ) {
+        bpm =  RRPrevX > 0 ? (60/((RPULSEX - RRPrevX)*dT/w)) : bpm;
+        deltaRRx = Math.round( bpm ); 
+        updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
+        RRPrevX = RPULSEX;
+    }
+    if ( x == VPULSEX  && VPULSEX != RRPrevX) {
+        bpm = (60/((VPULSEX - RRPrevX)*dT/w));
+        deltaRRx = Math.round( bpm );
+        updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
+        RRPrevX = VPULSEX;
     }
     
     // @TODO Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
@@ -284,5 +291,6 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 }
 
 function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
+    HR_BPM = hr;
     DISPLAY_ELEMS["hr_display_v"].textContent = hr.toString();
 }
