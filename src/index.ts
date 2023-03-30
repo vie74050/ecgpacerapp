@@ -39,10 +39,10 @@ $(() => {
     UIEventsPacer.Setup(PACER_INPUTS, nX);
 
     // SETTINGS events
-    UIEventsSettings.Setup(DISPLAY_ELEMS, SETTINGS_INPUTS);
+    UIEventsSettings.Setup(DISPLAY_ELEMS, SETTINGS_INPUTS, nX);
 
     // MONITOR events
-    UIEventsMonitor.Setup(hr_graph, bp_graph);
+    UIEventsMonitor.Setup(hr_graph, bp_graph, nX);
 
     /** Hide DOM element based on URL params: classid=0
     * NB: must prefix class id with `_` in index.html if hideable

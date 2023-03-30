@@ -3,7 +3,7 @@ import { rhythms } from '../Presets/InnateRythms';
 import { SetContent } from './SetContent';
 import $ from "jquery";
 
-export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes) {
+export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
     const reset_btn = document.getElementById('reset_btn');
     reset_btn.onclick = (event: Event) => {
         resetInputsToDefault();
@@ -126,9 +126,9 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
     dia_btn.defaultValue = dia_btn.value;
     dia_btn.dispatchEvent(new Event('change'));
 
-    const ui_show_btns = (document.getElementsByClassName('uishow_cb')) as HTMLCollectionOf<HTMLInputElement>;
-    for (let i = 0; i < ui_show_btns.length; i++) {
-        ui_show_btns[i].onchange = (event: Event) => {
+    const ui_show_cbs = (document.getElementsByClassName('uishow_cb')) as HTMLCollectionOf<HTMLInputElement>;
+    for (let i = 0; i < ui_show_cbs.length; i++) {
+        ui_show_cbs[i].onchange = (event: Event) => {
             const targ = (event.currentTarget as HTMLInputElement);
             const targClassname = '._' + targ.id;
             if (targ.checked) {
@@ -138,6 +138,13 @@ export function Setup(DISPLAY_ELEMS: IDomNodes, SETTINGS_INPUTS: IDomInputNodes)
             };
         };
     
+    }
+
+    const innateInputs = $('._innateSettings input');
+    for (let i = 0; i < innateInputs.length; i++) {
+        innateInputs[i].onchange = (event: Event) => { 
+            nX.dispatchEvent(new Event('change')); // redraw graphs
+        };
     }
 }
 
