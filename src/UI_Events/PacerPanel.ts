@@ -1,9 +1,17 @@
 import { IDomInputNodes } from "../Interfaces";
+import { getDomInputNodes } from "../helpers";
+import * as Display from './DisplayPanel';
 
 enum modes {o,i,t,d};
-export var ResponseMode: modes;
+var ResponseMode: modes;
+var INPUTS: IDomInputNodes;
+export {ResponseMode, INPUTS};
 
-export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
+export function Setup(id: string) {
+    INPUTS = getDomInputNodes("#_pacer input"); 
+
+    const nX = Display.nX;
+
     const pacer_mode_btn = document.getElementById("pacer_mode");
      pacer_mode_btn!.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
@@ -12,20 +20,20 @@ export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
         // pacing
         switch (chars[0]) {
             case 'a':
-                PACER_INPUTS["a_out"].disabled = false;
-                PACER_INPUTS["v_out"].disabled = true;
+                INPUTS["a_out"].disabled = false;
+                INPUTS["v_out"].disabled = true;
                 break;
             case 'v':
-                PACER_INPUTS["v_out"].disabled = false;
-                PACER_INPUTS["a_out"].disabled = true;
+                INPUTS["v_out"].disabled = false;
+                INPUTS["a_out"].disabled = true;
                 break;
             case 'd':
-                PACER_INPUTS["a_out"].disabled = false;
-                PACER_INPUTS["v_out"].disabled = false;
+                INPUTS["a_out"].disabled = false;
+                INPUTS["v_out"].disabled = false;
                 break;
             case 'o':
-                PACER_INPUTS["a_out"].disabled = true;
-                PACER_INPUTS["v_out"].disabled = true;
+                INPUTS["a_out"].disabled = true;
+                INPUTS["v_out"].disabled = true;
             default:
                 break;
         }
@@ -33,20 +41,20 @@ export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
         // sensing
         switch (chars[1]) {
             case 'a':
-                PACER_INPUTS["a_sense"].disabled = false;
-                PACER_INPUTS["v_sense"].disabled = true;
+                INPUTS["a_sense"].disabled = false;
+                INPUTS["v_sense"].disabled = true;
                 break;
             case 'v':
-                PACER_INPUTS["v_sense"].disabled = false;
-                PACER_INPUTS["a_sense"].disabled = true;
+                INPUTS["v_sense"].disabled = false;
+                INPUTS["a_sense"].disabled = true;
                 break;
             case 'd':
-                PACER_INPUTS["a_sense"].disabled = false;
-                PACER_INPUTS["v_sense"].disabled = false;
+                INPUTS["a_sense"].disabled = false;
+                INPUTS["v_sense"].disabled = false;
                 break;
             case 'o':
-                PACER_INPUTS["a_sense"].disabled = true;
-                PACER_INPUTS["v_sense"].disabled = true;
+                INPUTS["a_sense"].disabled = true;
+                INPUTS["v_sense"].disabled = true;
             default:
                 break;
         }

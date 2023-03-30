@@ -1,17 +1,25 @@
-import { IDomInputNodes } from "../Interfaces";
-import { GraphMonitor, Pulse } from "./GraphMonitor";
-import * as HRGraph from "./HR_graphY";
+import { IDomInputNodes } from '../Interfaces';
+import { GraphMonitor, Pulse } from './GraphMonitor';
+import * as HRGraph from './HR_graphY';
+import * as SETTINGS from '../UI_Events/SettingsPanel';
 
-export function GraphY(x: number, bp_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes) {
+var hr_bpm = 0;
+
+export function GraphY(x: number, bp_graph: GraphMonitor) {
+    const settings: IDomInputNodes = SETTINGS.INPUTS;
+
     const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX, maxH = 240;
-    const systolic_bpm = SETTINGS_INPUTS["sys_r"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["sys_r"]?.value) : 120;
-    const diastolic_bpm = SETTINGS_INPUTS["dia_r"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["dia_r"]?.value) : 60;
+    const systolic_bpm = settings['sys_r']?.value != 'undefined' ? Number(settings['sys_r']?.value) : 120;
+    const diastolic_bpm = settings['dia_r']?.value != 'undefined' ? Number(settings['dia_r']?.value) : 60;
     const dh = systolic_bpm - diastolic_bpm;
 
-    const RPULSEX = HRGraph.RRPrevX;
-        
-    const hr_bpm = HRGraph.HR_BPM;
-    const rx = 60 * (w / dT) / hr_bpm;
+    const RPULSEX = HRGraph.RRPrevX; 
+
+    // use the higher HR
+    hr_bpm = HRGraph.HR_BPM ; 
+  
+    let rx = 60 * (w / dT) / hr_bpm;
+  
     const pw = 0.1 * rx;
     
     const pulse_sys = Pulse(x, RPULSEX + 2.5 * pw, 1, pw);
@@ -20,6 +28,5 @@ export function GraphY(x: number, bp_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
     let y = RPULSEX > -1 ? pulse / maxH * h + h : h;
 
-    //console.log("BP - hr" , x, RPULSEX); 
     return y;
 }

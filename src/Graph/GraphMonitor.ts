@@ -67,7 +67,7 @@ export class GraphMonitor {
         let height = this.HEIGHT;
         let ctx = this.CTX;
         let x = this.x;
-        let y = this.GETY(x);
+        let y = this.GetYatX(x);
 
         if (this.continueAnimation) {
             requestAnimationFrame(this.animate);

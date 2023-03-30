@@ -3,6 +3,13 @@ import { getRandomInt } from "../helpers";
 import { GraphMonitor, Pulse } from "./GraphMonitor";
 import * as Pacer from "../UI_Events/PacerPanel";
 import * as Ref from "../Presets/ReferenceDefaults";
+import * as SETTINGS from '../UI_Events/SettingsPanel';
+import * as PACER from '../UI_Events/PacerPanel';
+import * as DISPLAY from '../UI_Events/DisplayPanel';
+
+var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS, 
+    PACER_INPUTS: IDomInputNodes = PACER.INPUTS, 
+    DISPLAY_ELEMS: IDomNodes = DISPLAY.DisplayNodes;
 
 export var SN_VAR: number = 0,
             AV_VAR: number = 0,
@@ -24,24 +31,28 @@ export function reset(){
     VPULSEX = 0;
     RRPrevX = 0;
     HR_BPM = 0;
+
+    SETTINGS_INPUTS = SETTINGS.INPUTS;
+    PACER_INPUTS = PACER.INPUTS;
+    DISPLAY_ELEMS = DISPLAY.DisplayNodes;
 } 
-export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomInputNodes, PACER_INPUTS: IDomInputNodes, DISPLAY_ELEMS: IDomNodes) {
+export function GraphY(x: number, hr_graph: GraphMonitor) {
     const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
     const maxH_mV = 10; // y-axis in mV --> full h in px
 
     // Get values from page
     // settings vars
-    const snr_bpm = SETTINGS_INPUTS['sn_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['sn_r']?.value) : 60;
-    const avr_bpm = SETTINGS_INPUTS['av_r']?.value != 'undefined' ? Number(SETTINGS_INPUTS['av_r']?.value) : 60;
-    const p_h_mod = SETTINGS_INPUTS["p_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["p_h"]?.value) : 1;
-    const pr_w_mod = SETTINGS_INPUTS["pr_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["pr_w"]?.value) : 1;
-    const st_mod = SETTINGS_INPUTS['st_w']?.value != 'undefined' ? Number(SETTINGS_INPUTS['st_w']?.value) : 1;
-    const t_w_mod = SETTINGS_INPUTS["t_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_w"]?.value) : 1;
-    const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value) || 0;
-    const qrs_w_mod = SETTINGS_INPUTS["qrs_w"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_w"]?.value) : 1;
-    const qrs_h_mod = SETTINGS_INPUTS["qrs_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_h"]?.value) : 1;
-    const t_h_mod = SETTINGS_INPUTS["t_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_h"]?.value) : 1;
-    const s_h_mod = SETTINGS_INPUTS["s_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["s_h"]?.value) : 1;
+    const snr_bpm = Number(SETTINGS_INPUTS['sn_r'].value);
+    const avr_bpm = Number(SETTINGS_INPUTS['av_r'].value);
+    const p_h_mod = Number(SETTINGS_INPUTS["p_h"].value);
+    const pr_w_mod = Number(SETTINGS_INPUTS["pr_w"].value);
+    const st_mod = Number(SETTINGS_INPUTS['st_w'].value);
+    const t_w_mod = Number(SETTINGS_INPUTS["t_w"].value);
+    const qrs_n = Number(SETTINGS_INPUTS["qrs_n"].value);
+    const qrs_w_mod = Number(SETTINGS_INPUTS["qrs_w"].value);
+    const qrs_h_mod = Number(SETTINGS_INPUTS["qrs_h"].value);
+    const t_h_mod = Number(SETTINGS_INPUTS["t_h"].value);
+    const s_h_mod = Number(SETTINGS_INPUTS["s_h"]?.value);
     const labels_cb = SETTINGS_INPUTS["labels"]?.checked; 
 
     // modifiers
@@ -53,16 +64,16 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     // pacer vars
     const p_detect = PACER_INPUTS["p_detect"];
     const s_detect = PACER_INPUTS["s_detect"];
-    const pacer_bpm = PACER_INPUTS["pacer_rate"]?.value != 'undefined' ? Number(PACER_INPUTS["pacer_rate"].value) : 80;
-    const aout_min = Number(SETTINGS_INPUTS["a_out_min"]?.value) || 0;
+    const pacer_bpm = Number(PACER_INPUTS["pacer_rate"].value);
+    const aout_min = Number(SETTINGS_INPUTS["a_out_min"].value) || 0;
     const a_out_mA = Number(PACER_INPUTS["a_out"]?.value) || 0;
     const asense_mV = Number(PACER_INPUTS["a_sense"]?.value) || 0;
 
     const responsemode = Pacer.ResponseMode;
-    const vout_min = Number(SETTINGS_INPUTS["v_out_min"]?.value) || 0;
-    const v_out_mA = Number(PACER_INPUTS["v_out"]?.value) || 0;
+    const vout_min = Number(SETTINGS_INPUTS["v_out_min"].value) || 0;
+    const v_out_mA = Number(PACER_INPUTS["v_out"].value) || 0;
     
-    const vsense_mV = Number(PACER_INPUTS["v_sense"]?.value) || 0;
+    const vsense_mV = Number(PACER_INPUTS["v_sense"].value) || 0;
     const dx = x % w;
 
     // bpm --> bps --> pxps
@@ -146,9 +157,9 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
     //const n3 = Math.floor(x / dx3ps) || 0
         
-    let apace = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;             //@TODO - fail to pace 
-    let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail to capture
-    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;        //@TODO - fail to sense 
+    let apace = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;             //@TODO - fail pace 
+    let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail capture
+    let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;        //@TODO - fail sense 
     let asensitivity = p_h/h * maxH_mV > asense_mV ;       
     let asensed = asensing 
                     && asensitivity && -p>0
@@ -278,7 +289,8 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     }
     
     // V Response
-    if (vpacing && vcapture && !vsensed) { //console.log('triggering v');        
+    let doVResponse = vpacing && vcapture && !vsensed;
+    if (doVResponse) { //console.log('triggering v');        
         
         r_h = -50 * noise;
         r_w = 0.04* dx3ps;
@@ -299,13 +311,13 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     let bpm = avr_bpm;
     //HR_BPM = HR_BPM==0? bpm : HR_BPM;
     let deltaRRx = Math.round( bpm );
-    if ( x == RPULSEX  && RPULSEX != RRPrevX ) {
+    if ( x == RPULSEX  && RPULSEX != RRPrevX && !doVResponse) {
         bpm =  RRPrevX > 0 ? (60/((RPULSEX - RRPrevX)*dT/w)) : bpm;
         deltaRRx = Math.round( bpm ); 
         updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
         RRPrevX = RPULSEX;
     }
-    if ( x == VPULSEX  && VPULSEX != RRPrevX) {
+    if ( x == VPULSEX  && VPULSEX != RRPrevX && doVResponse) {
         bpm = (60/((VPULSEX - RRPrevX)*dT/w));
         deltaRRx = Math.round( bpm );
         updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
