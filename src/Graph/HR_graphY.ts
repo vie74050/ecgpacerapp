@@ -165,17 +165,21 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     if (x > offseta && apace) {
         //console.log(p_h/h * maxH_mV, p_h, h, p_w, w, dT) ; 
         if (!asensing || !asensitivity) {
-            if ( (x - offseta) % dx3ps < 1 ) {
-                a = a_h;
-                if (labels_cb) hr_graph.Label("A", dx, 20); 
-                //console.log("pacing");
-                APULSEX = x;
+            // A pacing but not sensing
+            if ( (x - offseta) % dx3ps < 5 ) {
+                p_detect.checked = true ;
+                if ( (x - offseta) % dx3ps < 1 ){
+                    a = a_h;
+                    if (labels_cb) hr_graph.Label("A", dx, 20); 
+                    //console.log("pacing");
+                    APULSEX = x;
+                }
             }
         } else { // a sensing
             
             if ( (x -  PPULSEX) % (dx3ps) < 5 ) {               
                 if (asensed && (responsemode == 1 || responsemode == 3)) {
-                    
+                    // atrial sensed (p)
                     s_detect.checked = true;
 
                     if ((x -  PPULSEX) % (dx3ps) < 1 && labels_cb)
@@ -183,7 +187,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
                 }else {
                     
-                    p_detect.checked = true ;
+                    p_detect.checked = true;
                     
                     if ((x -  PPULSEX) % (dx3ps) < 1){
                         a = a_h;
@@ -191,7 +195,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
                         APULSEX = x;
                     }
                 }   
-                //@TODO trigger or dual modes?                
+                              
             }
         }
     }  
@@ -218,12 +222,13 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     if ( Math.floor(x - r_dx_max) == 0) { 
             
         if (-r>0) {
-            if (labels_cb) hr_graph.Label("r", dx-10, 40, 8); //console.log(r);
+            if (labels_cb) hr_graph.Label("r", dx-10, 40, 8); 
+            //console.log(r);
             RPULSEX = x;
         }; 
     }
 
-/** PACER V PULSE & RESPONSE **/
+    /** PACER V PULSE & RESPONSE **/
     let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
     let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
     let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
@@ -239,22 +244,34 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
     if (x > offsetv && vpacing) {
         if (!vsensing || !vsensitivity) {
-            if ( (x - offsetv) % dx3ps < 1) {
-                v = v_h;
-                if (labels_cb) hr_graph.Label("V", dx, 20);
-                VPULSEX = x;
-            }
-        }else{
-            if ((x - RPULSEX) % (dx3ps) < 1) {
-                //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
-                if (vsensed && (responsemode == 1 || responsemode == 3)) {
-                    if (labels_cb) hr_graph.Label("vs", dx, 20);
-                    s_detect.checked = true; //console.log("vsensed");
-                }else {
+            // V pacing but not sensing
+            if ( (x - offsetv) % dx3ps < 5) {
+                p_detect.checked = true;
+                if ((x - offsetv) % dx3ps < 1){
                     v = v_h;
                     if (labels_cb) hr_graph.Label("V", dx, 20);
-                    p_detect.checked = true;
                     VPULSEX = x;
+                }
+            }
+        }else{
+            if ((x - RPULSEX) % (dx3ps) < 5) {
+                //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
+                if (vsensed && (responsemode == 1 || responsemode == 3)) {
+                    // vent. activity sensed (r)
+                    s_detect.checked = true; //console.log("vsensed");
+
+                    if ((x - RPULSEX) % (dx3ps) < 1 && labels_cb) {
+                        hr_graph.Label("vs", dx, 20);
+                    }
+                }else {
+                    
+                    p_detect.checked = true;
+
+                    if ((x - RPULSEX) % (dx3ps) < 1){
+                        v = v_h;
+                        if (labels_cb) hr_graph.Label("V", dx, 20);
+                        VPULSEX = x;
+                    }
                 }
             }
         }
@@ -277,9 +294,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     }
 
     let y = a + p + v + q + r + s + t;
-
-    // UI OUTPUT VARS
-    
+ 
     // Update R-R interval, HR
     let bpm = avr_bpm;
     //HR_BPM = HR_BPM==0? bpm : HR_BPM;
