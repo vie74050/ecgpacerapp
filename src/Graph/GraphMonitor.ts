@@ -1,4 +1,4 @@
-import { IGraphOptions } from "./Interfaces";
+import { IGraphOptions } from "../Interfaces";
 
 /** Creates canvas graph. */
 export class GraphMonitor {
@@ -21,7 +21,7 @@ export class GraphMonitor {
         this.HEIGHT = opts?.HEIGHT ? opts.HEIGHT : this.HEIGHT;
         this.WIDTH = opts?.WIDTH ? opts.WIDTH : this.WIDTH;
         this.LINE_COLOUR = opts?.LINE_COLOUR ? opts.LINE_COLOUR : this.LINE_COLOUR;
-        this.GETY = opts?.GETY ? opts?.GETY : this.Pulse;
+        this.GETY = opts?.GETY ? opts?.GETY : Pulse;
         this.nDIVX = opts?.nDIVX ? Number(opts?.nDIVX) : this.nDIVX;
 
         let canvas = document.getElementById(this.CANVAS_ID) as HTMLCanvasElement;
@@ -103,14 +103,16 @@ export class GraphMonitor {
 
     GetYatX = (x: number): number => { return this.GETY(x); };
 
-    Pulse(t: number, x: number = 0, a: number = 0, w: number = 0): number {
-        return -a * Math.exp(-0.5 * Math.pow((t - x) / w, 2));
-    }
-
     Label = (s: string, x: number, y: number, size?:number ) => {
         const ctx = this.CTX;
         ctx.font = typeof size !== 'undefined'? size+"px Arial" : "9px Arial";
         ctx.fillStyle = "white";
         ctx.fillText(s, x, y);
     }
+}
+
+//** GRAPHING Helper Fns ****************************************************//
+
+export function Pulse(t: number, x: number, a: number, w: number): number {
+    return -a * Math.exp(-0.5 * Math.pow((t - x) / w, 2));
 }

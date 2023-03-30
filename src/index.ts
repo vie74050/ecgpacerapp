@@ -2,13 +2,13 @@ import './scss/styles.scss';
 import $ from "jquery";
 import { IDomNodes, IDomInputNodes } from "./Interfaces";
 import { getDomNodes, getDomInputNodes, findGetParameters } from "./helpers";
-import { GraphMonitor } from "./GraphMonitor";
-import * as UIEventsSettings from "./UI_Events/SettingsEvents";
+import { GraphMonitor } from "./Graph/GraphMonitor";
+import * as UIEventsSettings from "./UI_Events/SettingsPanel";
 import * as SetContent from "./UI_Events/SetContent";
-import * as UIEventsMonitor from "./UI_Events/DisplayEvents";
-import * as UIEventsPacer from "./UI_Events/PacerEvents";
-import * as HRGraph from './Presets/HR_graphY';
-import * as BPGraph from './Presets/BP_graphY';
+import * as UIEventsMonitor from "./UI_Events/DisplayPanel";
+import * as UIEventsPacer from "./UI_Events/PacerPanel";
+import * as HRGraph from './Graph/HR_graphY';
+import * as BPGraph from './Graph/BP_graphY';
 
 $(() => {
    
@@ -17,7 +17,7 @@ $(() => {
     //console.log(`display outs:`, DISPLAY_ELEMS);
     
     const SETTINGS_INPUTS: IDomInputNodes = getDomInputNodes("#_settings input"); 
-    //console.log(`settings:`, SETTINGS_INPUTS);
+    console.log(`settings:`, SETTINGS_INPUTS);
 
     const PACER_INPUTS: IDomInputNodes = getDomInputNodes("#_pacer input"); 
     console.log(`pacer_settings:`, PACER_INPUTS);

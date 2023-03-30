@@ -5,7 +5,7 @@ export var ResponseMode: modes;
 
 export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
     const pacer_mode_btn = document.getElementById("pacer_mode");
-     pacer_mode_btn.onchange = (event: Event) => {
+     pacer_mode_btn!.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
         let chars = key.split(''); // [pacing, sensing, sense response]
 
@@ -56,5 +56,5 @@ export function Setup(PACER_INPUTS: IDomInputNodes, nX:HTMLInputElement) {
         nX.dispatchEvent(new Event('change')); // redraw graphs
 
      }
-     pacer_mode_btn.dispatchEvent(new Event('change'));
+     pacer_mode_btn!.dispatchEvent(new Event('change'));
 }

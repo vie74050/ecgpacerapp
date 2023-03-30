@@ -1,18 +1,18 @@
 import { IDomNodes, IDomInputNodes } from "../Interfaces";
-import { Pulse, getRandomInt } from "../helpers";
-import { GraphMonitor } from "../GraphMonitor";
-import * as Pacer from "../UI_Events/PacerEvents";
-import * as Ref from "./ReferenceDefaults";
+import { getRandomInt } from "../helpers";
+import { GraphMonitor, Pulse } from "./GraphMonitor";
+import * as Pacer from "../UI_Events/PacerPanel";
+import * as Ref from "../Presets/ReferenceDefaults";
 
 export var SN_VAR: number = 0,
             AV_VAR: number = 0,
             QRS_VAR: number = 0,
-            RPULSEX = 0, // latest x when R 
-            PPULSEX = 0, // latest x when P
-            APULSEX = 0,
-            VPULSEX = 0,
-            RRPrevX = 0,
-            HR_BPM = 0;
+            RPULSEX: number = 0, // latest x when R 
+            PPULSEX: number = 0, // latest x when P
+            APULSEX: number = 0,
+            VPULSEX: number = 0,
+            RRPrevX: number = 0,
+            HR_BPM: number = 0;
 
 export function reset(){
     SN_VAR = 0;
@@ -42,11 +42,13 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     const qrs_h_mod = SETTINGS_INPUTS["qrs_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["qrs_h"]?.value) : 1;
     const t_h_mod = SETTINGS_INPUTS["t_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["t_h"]?.value) : 1;
     const s_h_mod = SETTINGS_INPUTS["s_h"]?.value != 'undefined' ? Number(SETTINGS_INPUTS["s_h"]?.value) : 1;
+    const labels_cb = SETTINGS_INPUTS["labels"]?.checked; 
+
     // modifiers
-    const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked || false;
-    const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked || false;
-    const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked || false;
-    const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked || false;
+    const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked;
+    const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked;
+    const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked;
+    const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked;
     
     // pacer vars
     const p_detect = PACER_INPUTS["p_detect"];
@@ -114,13 +116,14 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         if ( Math.floor(x - p_dx_max) == -5) { 
             
             if (-p>0) {
-                hr_graph.Label("p", dx, 80, 8);
+                if (labels_cb) hr_graph.Label("p", dx, 80, 8);
                 PPULSEX = x;
             }; 
         }
     }
 
     // Innate QRST
+    let r_dx_max = 0;
     if (avr_bpm > 0) {
         // update params on new AV beat
         if (Math.floor((hr_graph.X - 1) / dx2ps) != n2) {
@@ -132,20 +135,11 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
 
         };
 
-        let r_dx_max = r_i * (w / dT) + n2 * dx2ps + AV_VAR;
+        r_dx_max = r_i * (w / dT) + n2 * dx2ps + AV_VAR;
         q = Pulse(x, q_i * (w / dT) + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i * (w / dT) + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i * (w / dT) + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));
-
-        if ( Math.floor(x - r_dx_max) == 0) { 
-            
-            if (-r>0) {
-                hr_graph.Label("r", dx-10, 40, 8); //console.log(r);
-                RPULSEX = x;
-            }; 
-        }
-        
+        t = Pulse(x, t_i * (w / dT) + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));        
     }
 
     //** PACER A PULSE & RESPONSE **//
@@ -161,7 +155,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
                     && x - PPULSEX < dx3ps;    
    
     // A Pulse	
-    let a = 0, a_h = 60;
+    let a = 0, a_h = 60; 
                    
     s_detect.checked = false;
     p_detect.checked = false;
@@ -173,21 +167,29 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         if (!asensing || !asensitivity) {
             if ( (x - offseta) % dx3ps < 1 ) {
                 a = a_h;
-                hr_graph.Label("A", dx, 20); 
+                if (labels_cb) hr_graph.Label("A", dx, 20); 
                 //console.log("pacing");
                 APULSEX = x;
             }
         } else { // a sensing
             
-            if ( (x -  PPULSEX) % (dx3ps) < 1 ) {               
+            if ( (x -  PPULSEX) % (dx3ps) < 5 ) {               
                 if (asensed && (responsemode == 1 || responsemode == 3)) {
-                    hr_graph.Label("as", dx, 20);
+                    
                     s_detect.checked = true;
+
+                    if ((x -  PPULSEX) % (dx3ps) < 1 && labels_cb)
+                        hr_graph.Label("as", dx, 20);
+
                 }else {
-                    a = a_h;
-                    hr_graph.Label("A", dx, 20); 
+                    
                     p_detect.checked = true ;
-                    APULSEX = x;
+                    
+                    if ((x -  PPULSEX) % (dx3ps) < 1){
+                        a = a_h;
+                        if (labels_cb) hr_graph.Label("A", dx, 20); 
+                        APULSEX = x;
+                    }
                 }   
                 //@TODO trigger or dual modes?                
             }
@@ -203,13 +205,22 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
         t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
        
-        p += Pulse(x, p_i, 30, 0.01*dx3ps); //console.log(n3, Math.floor(p_i));
+        p += Pulse(x, p_i, 5, 0.01*dx3ps); //console.log(n3, Math.floor(p_i));
         
         // trigger innate qrst ?
+        r_dx_max = r_i + AV_VAR;
         q = Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT));
         t = Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT));
+    }
+
+    if ( Math.floor(x - r_dx_max) == 0) { 
+            
+        if (-r>0) {
+            if (labels_cb) hr_graph.Label("r", dx-10, 40, 8); //console.log(r);
+            RPULSEX = x;
+        }; 
     }
 
 /** PACER V PULSE & RESPONSE **/
@@ -230,18 +241,18 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         if (!vsensing || !vsensitivity) {
             if ( (x - offsetv) % dx3ps < 1) {
                 v = v_h;
-                hr_graph.Label("V", dx, 20);
+                if (labels_cb) hr_graph.Label("V", dx, 20);
                 VPULSEX = x;
             }
         }else{
             if ((x - RPULSEX) % (dx3ps) < 1) {
                 //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
                 if (vsensed && (responsemode == 1 || responsemode == 3)) {
-                    hr_graph.Label("vs", dx, 20);
+                    if (labels_cb) hr_graph.Label("vs", dx, 20);
                     s_detect.checked = true; //console.log("vsensed");
                 }else {
                     v = v_h;
-                    hr_graph.Label("V", dx, 20);
+                    if (labels_cb) hr_graph.Label("V", dx, 20);
                     p_detect.checked = true;
                     VPULSEX = x;
                 }
@@ -271,6 +282,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
     
     // Update R-R interval, HR
     let bpm = avr_bpm;
+    //HR_BPM = HR_BPM==0? bpm : HR_BPM;
     let deltaRRx = Math.round( bpm );
     if ( x == RPULSEX  && RPULSEX != RRPrevX ) {
         bpm =  RRPrevX > 0 ? (60/((RPULSEX - RRPrevX)*dT/w)) : bpm;
@@ -284,13 +296,11 @@ export function GraphY(x: number, hr_graph: GraphMonitor, SETTINGS_INPUTS: IDomI
         updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
         RRPrevX = VPULSEX;
     }
-    
-    // @TODO Update RPULSEX (R-R interval) for RPULSE-dependents (i.e. HR, BP...etc.)
-    
+        
     return Math.min(y + h / 2, h);
 }
 
 function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
-    HR_BPM = hr;
+    HR_BPM = hr==0? Number(DISPLAY_ELEMS["hr_display_v"].textContent) : hr;
     DISPLAY_ELEMS["hr_display_v"].textContent = hr.toString();
 }

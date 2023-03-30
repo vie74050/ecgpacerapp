@@ -1,11 +1,5 @@
 import { IDomNodes, IDomInputNodes } from "./Interfaces";
 
-//** GRAPHING Fns ****************************************************//
-
-export function Pulse(t: number, x: number, a: number, w: number): number {
-    return -a * Math.exp(-0.5 * Math.pow((t - x) / w, 2));
-}
-
 //** HELPERS DOM & type manipulation *********************************//
 
 /**

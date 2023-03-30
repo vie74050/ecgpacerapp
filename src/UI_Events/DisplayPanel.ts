@@ -1,9 +1,9 @@
-import { GraphMonitor } from "../GraphMonitor";
-import * as HRGraph from "../Presets/HR_graphY";
+import { GraphMonitor } from "../Graph/GraphMonitor";
+import * as HRGraph from "../Graph/HR_graphY";
 
 export function Setup(hr_graph: GraphMonitor, bp_graph: GraphMonitor, nX:HTMLInputElement) {
     const pp_btn = document.getElementById("playpause_btn");
-    pp_btn.onclick = (event) => {
+    pp_btn!.onclick = (event) => {
         hr_graph.PlayPause();
         bp_graph.PlayPause();
     }

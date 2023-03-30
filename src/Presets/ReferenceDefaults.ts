@@ -1,3 +1,4 @@
+/* @TODO standardize defaults and units used */
 // Normal sinus rhythm defaul w, h
 // w ~ 0.1 * sec, h ~ px
 
