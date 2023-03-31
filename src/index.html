@@ -61,12 +61,12 @@
       </div>
       <div class="row">
         <label>A</label>
-        <input id="a_out" type="number" min="2" max="10" step="1" value="0">
+        <input id="a_out" type="number" min="2" max="10" step="1" value="1">
         <span>mA</span>
       </div>
       <div class="row">
         <label>V</label>
-        <input id="v_out" type="number" min="2" max="25" step="1" value="0">
+        <input id="v_out" type="number" min="2" max="25" step="1" value="1">
         <span>mA</span>
       </div>
       <hr />
@@ -75,12 +75,12 @@
       </div>
       <div class="row">
         <label>A</label>
-        <input id="a_sense" type="number" min="0" max="5" step="0.1" value="0">
+        <input id="a_sense" type="number" min="0" max="10" step="0.1" value="1">
         <span>mV</span>
       </div>
       <div class="row">
         <label>V</label>
-        <input id="v_sense" type="number" min="0" max="5" step="0.1" value="0">
+        <input id="v_sense" type="number" min="0" max="10" step="0.1" value="1">
         <span>mV</span>
       </div>
     </section>
@@ -95,39 +95,39 @@
       <table class="data-table">
         
         <tbody>
-          <tr>
+          <tr class="_innateSettings">
             <th colspan="4">Innate Rhythm Settings</th>
           </tr>
     
-          <tr>
+          <tr class="_innateSettings">
             <td>SN rate (bpm)</td>
             <td>
-              <input id='sn_r' type="number" min="0" max="240" step="1" value="80">
+              <input id="sn_r" type="number" min="0" max="240" step="1" value="80">
               <br />
               irregular?<input id="snr_cb" type="checkbox"></td>
             <td>AV rate(bpm)</td>
             <td>
-              <input id='av_r' type="number" min="0" max="240" step="1" value="80">
+              <input id="av_r" type="number" min="0" max="240" step="1" value="80">
               <br />
               irregular?<input id="avr_cb" type="checkbox"></td>
     
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <th colspan=4></th>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td>P height</td>
             <td><input id="p_h" type="number" min="-2" max="2" step="0.1" value="1"></td>
             <td>QRS height</td>
             <td><input id="qrs_h" type="number" min="-2" max="2" step="0.1" value="1"></td>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td title="Set PR interval multiplier">PR segment</td>
             <td><input id="pr_w" type="number" min="-10" max="10" step=".1" value="1"></td>
             <td>QRS duration</td>
             <td><input id="qrs_w" type="number" min="0" max="10" step="0.1" value="1"></td>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td></td>
             <td>
               increasing?<input id="pr_cb" type="checkbox">
@@ -138,24 +138,24 @@
               <br />random? <input id="qrs_cb" type="checkbox">
             </td>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td>ST segment</td>
-            <td><input id='st_v' type="number" min="-2" max="2" step=".1" value="1"></td>
+            <td><input id="st_w" type="number" min="-2" max="2" step=".1" value="1"></td>
             <td>T duration</td>
             <td><input id="t_w" type="number" min="0" max="3" step=".1" value="1"></td>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td>S height</td>
             <td><input id="s_h" type="number" min="-2" max="2" step=".1" value="1"></td>
             <td>T height</td>
             <td><input id="t_h" type="number" min="-3" max="3" step=".1" value="1"></td>
           </tr>
           <!-- Presets/InnateRhythms -->
-          <tr title="Preset innate rhyths">
+          <tr title="Preset innate rhyths" class="_innateSettings">
             <th colspan="4">
               <hr />Presets</th>
           </tr>
-          <tr>
+          <tr class="_innateSettings">
             <td colspan="4">
               <select name="innate selections" id="innate-sel"></select>
             </td>
@@ -193,7 +193,8 @@
           <tr>
             <td colspan="4">
               <label>Pacer</label><input type="checkbox" id="pacer" checked class="uishow_cb">
-              <label>BP</label><input type="checkbox" id="bpgraph" checked  class="uishow_cb">
+              <label>BP</label><input type="checkbox" id="bpgraph" checked class="uishow_cb">
+              <label>Labels</label><input type="checkbox" id="labels" checked>
             </td>
           </tr>
 
