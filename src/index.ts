@@ -1,7 +1,5 @@
 import './scss/styles.scss';
 import $ from "jquery";
-import { IDomNodes, IDomInputNodes } from "./Interfaces";
-import { getDomNodes, getDomInputNodes, findGetParameters } from "./helpers";
 import { GraphMonitor } from "./Graph/GraphMonitor";
 import * as UISettings from "./UI_Events/SettingsPanel";
 import * as UIDisplay from "./UI_Events/DisplayPanel";

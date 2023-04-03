@@ -224,10 +224,10 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
         
         // trigger innate qrst ?
         r_dx_max = r_i + AV_VAR;
-        q = Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT));
-        r = Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT));
-        s = Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT));
+        q = Math.floor(Math.abs(q))==0? Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT)) : q;
+        r = Math.floor(Math.abs(r))==0? Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT)) : r;
+        s = Math.floor(Math.abs(s))==0? Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT)) : s;
+        t = Math.floor(Math.abs(t))==0? Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT)) : t;
     }
 
     if ( Math.floor(x - r_dx_max) == 0) { 
@@ -299,7 +299,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
         t_h = 25 * noise;
         t_w = 0.08 * dx3ps;
         t_i = r_i + 2 * t_w;
-
+        
         r = Pulse(x, r_i, r_h, r_w);
         t = Pulse(x, t_i, t_h, t_w);
         
