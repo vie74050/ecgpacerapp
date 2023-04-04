@@ -1,11 +1,21 @@
-import { IDomInputNodes } from '../Interfaces';
+import { IDomInputNodes, IGraphOptions } from '../Interfaces';
 import { GraphMonitor, Pulse } from './GraphMonitor';
-import * as HRGraph from './HR_graphY';
+import * as HRGraph from './GraphHR';
 import * as SETTINGS from '../UI_Events/SettingsPanel';
 
 var hr_bpm = 0;
 
-export function GraphY(x: number, bp_graph: GraphMonitor) {
+export class BPGraph extends GraphMonitor {
+
+    constructor (canvaseId: string, opts?: IGraphOptions) {
+        super(canvaseId, opts);
+
+        this.Y = (x) => GraphY(x, this);
+    }
+}
+
+
+function GraphY(x: number, bp_graph: GraphMonitor) {
     const settings: IDomInputNodes = SETTINGS.INPUTS;
 
     const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX, maxH = 240;

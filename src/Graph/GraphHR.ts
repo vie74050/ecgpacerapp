@@ -1,4 +1,4 @@
-import { IDomNodes, IDomInputNodes } from "../Interfaces";
+import { IDomNodes, IDomInputNodes, IGraphOptions } from "../Interfaces";
 import { getRandomInt } from "../helpers";
 import { GraphMonitor, Pulse } from "./GraphMonitor";
 import * as Pacer from "../UI_Events/PacerPanel";
@@ -8,20 +8,36 @@ import * as PACER from '../UI_Events/PacerPanel';
 import * as DISPLAY from '../UI_Events/DisplayPanel';
 
 var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS, 
-    PACER_INPUTS: IDomInputNodes = PACER.INPUTS, 
-    DISPLAY_ELEMS: IDomNodes = DISPLAY.DisplayNodes;
+    PACER_INPUTS: IDomInputNodes = PACER.INPUTS,
+    DISPLAY_ELEMS: IDomNodes = DISPLAY.DisplayNodes,
+    SN_VAR: number = 0,
+    AV_VAR: number = 0,
+    QRS_VAR: number = 0,
+    RPULSEX: number = 0, // latest x when R 
+    PPULSEX: number = 0, // latest x when P
+    APULSEX: number = 0,
+    VPULSEX: number = 0,
+    RRPrevX: number = 0,
+    HR_BPM: number = 0;
 
-export var SN_VAR: number = 0,
-            AV_VAR: number = 0,
-            QRS_VAR: number = 0,
-            RPULSEX: number = 0, // latest x when R 
-            PPULSEX: number = 0, // latest x when P
-            APULSEX: number = 0,
-            VPULSEX: number = 0,
-            RRPrevX: number = 0,
-            HR_BPM: number = 0;
+export {HR_BPM, RRPrevX};
 
-export function reset(){
+export class HRGraph extends GraphMonitor {
+    
+    constructor (canvasId: string, opts?: IGraphOptions) {
+        super(canvasId);
+        reset();
+
+        this.Y = (x) => graphY(x, this);
+    }
+
+    updatenX = () => {
+        super.updatenX();
+        reset();
+    };
+}
+
+function reset(){
     SN_VAR = 0;
     AV_VAR = 0;
     QRS_VAR = 0;
@@ -36,9 +52,23 @@ export function reset(){
     PACER_INPUTS = PACER.INPUTS;
     DISPLAY_ELEMS = DISPLAY.DisplayNodes;
 } 
-export function GraphY(x: number, hr_graph: GraphMonitor) {
-    const w = hr_graph.WIDTH, h = hr_graph.HEIGHT, dT = hr_graph.nDIVX;
-    const maxH_mV = 10; // y-axis in mV --> full h in px
+function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
+    let str = "--";
+    
+    if (hr > 0 && hr < 300) { // hotfix 
+        str = hr.toString();
+        HR_BPM = hr;
+    }
+        
+    DISPLAY_ELEMS["hr_display_v"].textContent = str;
+}
+
+function graphY(x: number, hr_graph: GraphMonitor) {
+    const w = hr_graph.WIDTH, 
+          h = hr_graph.HEIGHT, 
+          dT = hr_graph.nDIVX,
+          maxH_mV = 10; // y-axis in mV --> full h in px
+    const dx = x % w;
 
     // Get values from page
     // settings vars
@@ -74,7 +104,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     const v_out_mA = Number(PACER_INPUTS["v_out"].value) || 0;
     
     const vsense_mV = Number(PACER_INPUTS["v_sense"].value) || 0;
-    const dx = x % w;
+    
 
     // bpm --> bps --> pxps
     const dx1ps = (60 / snr_bpm) * (w / dT) || 0,
@@ -106,13 +136,13 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
     let p_q_interval = Ref.pq.w * pr_w_mod * pq_multiplier;
 
-    let p_i = p_w / 2 + 0.2; 
-    let q_i = p_i + p_w + q_w / 2 + p_q_interval;
-    let r_i = q_i + q_w + r_w / 2 + 0.02;
-    let s_i = r_i + r_w + s_w / 2 + 0.01;
-    let t_i = s_i + s_w + t_w / 2 + Ref.st.w * st_mod;
+    let p_i = (p_w / 2 + 0.2) * (w / dT); 
+    let q_i = p_i + (p_w + q_w / 2 + p_q_interval)* (w / dT);
+    let r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
+    let s_i = r_i + (r_w + s_w / 2 + 0.01 * (w / dT));
+    let t_i = s_i + (s_w + t_w / 2 + Ref.st.w * st_mod * (w / dT));
 
-    let p_dx_max = p_i * (w / dT) + n1 * dx1ps + SN_VAR;
+    let p_dx_max = p_i + n1 * dx1ps;
     // Innate P wave
     if (snr_bpm > 0) {
 
@@ -121,7 +151,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
             // arrhythmia due to variable sn node rate +/- 25%
             SN_VAR = snr_cb ? 0.75 * dx1ps * Math.random() * 0.25 + 1 : 0;
         };
-
+        p_dx_max = p_i + n1 * dx1ps + SN_VAR;
         p = Pulse(x, p_dx_max, p_h * noise, p_w * (w / dT));
         
         if ( Math.floor(x - p_dx_max) == -5) { 
@@ -146,11 +176,11 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
 
         };
 
-        r_dx_max = r_i * (w / dT) + n2 * dx2ps + AV_VAR;
-        q = Pulse(x, q_i * (w / dT) + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
+        r_dx_max = r_i + n2 * dx2ps + AV_VAR;
+        q = Pulse(x, q_i + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
-        s = Pulse(x, s_i * (w / dT) + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i * (w / dT) + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));        
+        s = Pulse(x, s_i + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
+        t = Pulse(x, t_i + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));        
     }
 
     //** PACER A PULSE & RESPONSE **//
@@ -171,9 +201,9 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     s_detect.checked = false;
     p_detect.checked = false;
 
-    let offseta = (p_i  - 5 * p_w ) * (w / dT);
+    let offseta = p_i  - (5 * p_w ) * (w / dT);
 
-    if (x > offseta && apace) {
+    if (x > offseta && apace && x >= dx3ps) {
         //console.log(p_h/h * maxH_mV, p_h, h, p_w, w, dT) ; 
         if (!asensing || !asensitivity) {
             // A pacing but not sensing
@@ -212,15 +242,15 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     }  
     
     // A Response Curves
-    if (apace && acapture && !asensed) { 
+    if (apace && acapture && !asensed && APULSEX >= dx3ps) { 
         
-        p_i = APULSEX + 5;//offseta + n3 * dx3ps + 10;//pixels
+        p_i = APULSEX + 5;
         q_i = p_i + (p_w + q_w / 2 + p_q_interval) * (w / dT);
         r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
         s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
         t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
        
-        p += Pulse(x, p_i, 5, 0.01*dx3ps); //console.log(n3, Math.floor(p_i));
+        p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, 5, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
         
         // trigger innate qrst ?
         r_dx_max = r_i + AV_VAR;
@@ -240,20 +270,21 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     }
 
     /** PACER V PULSE & RESPONSE **/
+    const offsetv = offseta + 9.5*p_w * (w / dT);
     let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
     let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
     let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
     let vsensitivity = r_h/h * maxH_mV > vsense_mV;  
     let vsensed =  vsensing 
                     && vsensitivity
-                    && x - RPULSEX < dx3ps;                                   
+                    && x - RPULSEX < dx3ps ;         //@TODO - delta x > refractory period?                          
 
     // V Pulse
     let v = 0, v_h = 80;
 
-    const offsetv = offseta + 10 * p_w * (w / dT);     
+         
 
-    if (x > offsetv && vpacing) {
+    if (x > offsetv && vpacing && x > dx3ps) {
         if (!vsensing || !vsensitivity) {
             // V pacing but not sensing
             if ( (x - offsetv) % dx3ps < 5) {
@@ -289,7 +320,7 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     }
     
     // V Response
-    let doVResponse = vpacing && vcapture && !vsensed;
+    let doVResponse = vpacing && vcapture && !vsensed && VPULSEX > PPULSEX && VPULSEX >= dx3ps;
     if (doVResponse) { //console.log('triggering v');        
         
         r_h = -50 * noise;
@@ -327,7 +358,30 @@ export function GraphY(x: number, hr_graph: GraphMonitor) {
     return Math.min(y + h / 2, h);
 }
 
-function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
-    HR_BPM = hr==0? Number(DISPLAY_ELEMS["hr_display_v"].textContent) : hr;
-    DISPLAY_ELEMS["hr_display_v"].textContent = hr.toString();
+ /* Innate signals */
+ function graphP(x: number, hr_graph: GraphMonitor): number{
+    const w = hr_graph.WIDTH, 
+        h = hr_graph.HEIGHT, 
+        dT = hr_graph.nDIVX, 
+        maxH_mV = 10; // y-axis in mV --> full h in px
+    const dx = x % w;
+
+    // settings
+    const labels_cb = SETTINGS_INPUTS["labels"]?.checked; 
+
+    const p_h_mod = Number(SETTINGS_INPUTS["p_h"].value);
+    
+    const noise = Math.random() * 0.2 + 1;
+    const p_h = Ref.p.h * p_h_mod;
+    const p_w = Ref.p.w; 
+    const p_i = (p_w / 2 + 0.2) * (w / dT);
+
+    let p = 0;
+       
+    // Innate P wave
+    p = Pulse(x, p_i, p_h * noise, p_w * (w / dT));
+    if (labels_cb) hr_graph.Label("p", p_i-10, 80, 8);
+    PPULSEX = p_i;
+
+    return p + h/2;
 }

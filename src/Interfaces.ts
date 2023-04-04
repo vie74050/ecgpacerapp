@@ -5,6 +5,11 @@ export interface IGraphOptions {
     GETY?(x: number): number;
     nDIVX?: number; // seconds shown in graph
 }
+export interface IPulse {
+    w: number;
+    h: number;
+    i?: number; // x offset &x @ max/min
+}
 export interface IPresetFunctions {
     [key: string]: Function;
 }

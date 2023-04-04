@@ -230,7 +230,7 @@ function handleURLLoad() {
         if (key === 'title') initdata['title'] = val;
     });
     if (Object.keys(initdata).length>0) {
-        let title = initdata['title'] || 'Custom'; console.log(setup_params);
+        let title = initdata['title'] || 'Custom'; //console.log(setup_params);
         SetContent(title, initdata, INPUTS);
     }
 }

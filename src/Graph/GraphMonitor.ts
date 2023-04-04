@@ -1,4 +1,5 @@
 import { IGraphOptions } from "../Interfaces";
+import { nX } from "../UI_Events/DisplayPanel";
 
 /** Creates canvas graph. */
 export class GraphMonitor {
@@ -22,7 +23,7 @@ export class GraphMonitor {
         this.WIDTH = opts?.WIDTH ? opts.WIDTH : this.WIDTH;
         this.LINE_COLOUR = opts?.LINE_COLOUR ? opts.LINE_COLOUR : this.LINE_COLOUR;
         this.GETY = opts?.GETY ? opts?.GETY : Pulse;
-        this.nDIVX = opts?.nDIVX ? Number(opts?.nDIVX) : this.nDIVX;
+        this.nDIVX = opts?.nDIVX ? Number(opts?.nDIVX) : Number(nX.value);
 
         let canvas = document.getElementById(this.CANVAS_ID) as HTMLCanvasElement;
         let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -32,7 +33,10 @@ export class GraphMonitor {
         this.CTX = ctx;
         this.x = -1;
         this.continueAnimation = false;
-        this.init();        
+        this.init();   
+        
+        window.addEventListener('playpause', this.playPause);
+        nX.addEventListener("change", this.updatenX); 
     }
 
     private init = () => {
@@ -93,12 +97,18 @@ export class GraphMonitor {
     set Y(fn: (x: number) => {}) { this.GETY = fn; }
     set nX(n: number) { this.nDIVX = n; this.drawAxis(n); }
 
-    PlayPause = () => {
+    playPause = () => {
         //console.log("pp");
         this.continueAnimation = !this.continueAnimation;
         if (this.continueAnimation) {
             requestAnimationFrame(this.animate);
         }
+    };
+
+    updatenX = () => {
+        this.nX = Number(nX.value);
+        this.X = -1; 
+        //console.log(nX);
     };
 
     GetYatX = (x: number): number => { return this.GETY(x); };
