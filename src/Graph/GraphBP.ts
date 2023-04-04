@@ -1,7 +1,7 @@
 import { IDomInputNodes, IGraphOptions } from '../Interfaces';
 import { GraphMonitor, Pulse } from './GraphMonitor';
 import * as HRGraph from './GraphHR';
-import * as SETTINGS from '../UI_Events/SettingsPanel';
+import * as SETTINGS from '../UI/SettingsPanel';
 
 var hr_bpm = 0;
 

@@ -1,5 +1,5 @@
 import { IDomInputNodes } from "../Interfaces";
-import { getDomInputNodes } from "../helpers";
+import { getDomInputNodes, findGetParameters } from "../helpers";
 import * as Display from './DisplayPanel';
 
 enum modes {o,i,t,d};
@@ -7,13 +7,13 @@ var ResponseMode: modes;
 var INPUTS: IDomInputNodes;
 export {ResponseMode, INPUTS};
 
-export function Setup(id: string) {
-    INPUTS = getDomInputNodes("#_pacer input"); 
-
+export function Setup(selectors: string) {
+    INPUTS = getDomInputNodes(selectors); 
     const nX = Display.nX;
+    handleURLLoad();
 
     const pacer_mode_btn = document.getElementById("pacer_mode");
-     pacer_mode_btn!.onchange = (event: Event) => {
+    pacer_mode_btn!.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
         let chars = key.split(''); // [pacing, sensing, sense response]
 
@@ -63,6 +63,18 @@ export function Setup(id: string) {
        
         nX.dispatchEvent(new Event('change')); // redraw graphs
 
-     }
-     pacer_mode_btn!.dispatchEvent(new Event('change'));
+    }
+    pacer_mode_btn!.dispatchEvent(new Event('change'));
+}
+
+function handleURLLoad(): void {
+    // check URL for pacer params to preset pacer input values
+    const setup_params = findGetParameters();
+    setup_params.forEach( (v,i)=>{
+        const key = decodeURI(v[0]).toString();
+        const val = decodeURI(v[1]).toString();
+        if(INPUTS[key]) {
+            INPUTS[key].value = val;
+        };
+    });
 }

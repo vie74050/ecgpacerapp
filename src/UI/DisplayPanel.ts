@@ -6,10 +6,10 @@ var nX: HTMLInputElement;
 
 export {DisplayNodes, nX};
 
-export function Setup(id: string) {
+export function Setup(selectors: string) {
 
-    DisplayNodes = getDomNodes(id);
-    nX = <HTMLInputElement>document.getElementById("nX");
+    DisplayNodes = getDomNodes(selectors); 
+    nX = <HTMLInputElement>DisplayNodes["nX"] || <HTMLInputElement>document.getElementById("nX");
 
     const pp_btn = document.getElementById("playpause_btn");
     const ppEvent: Event = new Event("playpause");

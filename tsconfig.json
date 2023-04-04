@@ -3,7 +3,7 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "target":"ES6",
-    "lib": ["es5", "es6", "dom"],
+    "lib": ["es5", "es6", "dom", "dom.Iterable"],
     "rootDir": "src",
     "outDir": "./built",
   },

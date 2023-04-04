@@ -1,5 +1,5 @@
 import { IGraphOptions } from "../Interfaces";
-import { nX } from "../UI_Events/DisplayPanel";
+import { nX } from "../UI/DisplayPanel";
 
 /** Creates canvas graph. */
 export class GraphMonitor {

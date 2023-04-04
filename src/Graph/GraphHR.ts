@@ -1,11 +1,11 @@
 import { IDomNodes, IDomInputNodes, IGraphOptions } from "../Interfaces";
 import { getRandomInt } from "../helpers";
 import { GraphMonitor, Pulse } from "./GraphMonitor";
-import * as Pacer from "../UI_Events/PacerPanel";
+import * as Pacer from "../UI/PacerPanel";
 import * as Ref from "../Presets/ReferenceDefaults";
-import * as SETTINGS from '../UI_Events/SettingsPanel';
-import * as PACER from '../UI_Events/PacerPanel';
-import * as DISPLAY from '../UI_Events/DisplayPanel';
+import * as SETTINGS from '../UI/SettingsPanel';
+import * as PACER from '../UI/PacerPanel';
+import * as DISPLAY from '../UI/DisplayPanel';
 
 var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS, 
     PACER_INPUTS: IDomInputNodes = PACER.INPUTS,

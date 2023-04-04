@@ -1,13 +1,12 @@
 import { IDomNodes, IDomInputNodes } from '../Interfaces';
-import { rhythms } from '../Presets/InnateRythms';
-import { SetContent } from './SetContent';
+import { RHYTHMS } from '../Presets/InnateRythms';
 import $ from "jquery";
 import * as Display from './DisplayPanel';
 import { getDomInputNodes, findGetParameters } from "../helpers";
 
 export var INPUTS: IDomInputNodes;
-export function Setup(id: string) {
-    INPUTS = getDomInputNodes(id); //console.log(INPUTS);
+export function Setup(selectors: string): void {
+    INPUTS = getDomInputNodes(selectors); //console.log(INPUTS);
 
     const displayNodes: IDomNodes = Display.DisplayNodes;
     const nX: HTMLInputElement = Display.nX;
@@ -93,7 +92,7 @@ export function Setup(id: string) {
 
     // Preset innate rhythm selection options
     const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
-    const presets_rhythms = rhythms;
+    const presets_rhythms = RHYTHMS;
     // create preset options
     let k: keyof typeof presets_rhythms;
     for (k in presets_rhythms) {
@@ -108,7 +107,7 @@ export function Setup(id: string) {
     }
     presets_sel.onchange = (event: Event) => {
         let key = (event.target as HTMLInputElement).value;
-        const contents = rhythms[key];
+        const contents = RHYTHMS[key];
         if (contents) {
             SetContent(key, contents, INPUTS);
         }
@@ -157,9 +156,38 @@ export function Setup(id: string) {
         });
     }
 }
+function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes): void {
+    let k: keyof typeof data;
+    for (k in data) {
+        // set Settings
+        let target = SETTINGS_INPUTS[k];
+        if (target) {
+            if (target.type === 'number')
+                target.value = data[k];
+            else if (target.type === 'checkbox')
+                target.checked = data[k] === true || data[k] === 'true';
+
+            target.dispatchEvent(new Event('change'));
+        }
+    }
+
+    const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
+    const options = presets_sel.options;
+    const optkeys = [...options].map(el=>el.value);
+    if (!( fname in optkeys )) {
+        let newoption = document.createElement('option') as HTMLOptionElement;
+        newoption.value = fname;
+        newoption.textContent = data['title'] ? data['title'] : fname;
+
+        //loaded element will be added to top -- becomes new default data for reset    
+        presets_sel.add(newoption, presets_sel.options[0]);
+        presets_sel.value = fname;
+
+    }
+}
 
 /** Gets all input elements and resets to default value */
-function resetInputsToDefault() {
+function resetInputsToDefault(): void {
     Array.from(document.getElementsByTagName('input')).forEach(input => {
         input.value = input.defaultValue;
         
@@ -173,7 +201,7 @@ function resetInputsToDefault() {
 
 /** Saves settings as json txt file to local folder. 
  *  Prompts user for filename to save as. */
-function download(content, fileName, contentType) {
+function download(content, fileName, contentType): void {
     var a = document.createElement('a');
     var file = new Blob([content], {type: contentType});
     a.href = URL.createObjectURL(file);
@@ -183,7 +211,7 @@ function download(content, fileName, contentType) {
 }
 
 /** Prompts user to select a local saved txt file to load. */
-function load(SETTINGS: IDomInputNodes) {
+function load(SETTINGS: IDomInputNodes): void {
     let input = document.createElement('input') as HTMLInputElement;
     input.type = 'file';
 
@@ -204,12 +232,12 @@ function load(SETTINGS: IDomInputNodes) {
 }
 
 /** Load from URL */
-function handleURLLoad() {
+function handleURLLoad(): void {
     /** Hide DOM element based on URL params: classid=0
     * NB: must prefix class id with `_` in index.html if hideable
-    * e.g. ?pacer=0&bpgraph=0&settings=0 
+    * e.g. ?pacer=0&bpgraph=0&settings=0 will hide class _pacer, _bpgraph, _settings
     */
-    let setup_params = findGetParameters();
+    const setup_params = findGetParameters();
     let initdata = {};
     setup_params.forEach( (v,i)=>{
         let key = decodeURI(v[0]).toString();
@@ -222,7 +250,6 @@ function handleURLLoad() {
 
         // check for custom rhythm settings
         if (INPUTS[v[0]]) {    
-            
             //console.log(SETTINGS_INPUTS[decodeURI(v[0])],decodeURI(v[1]));
             initdata[key] = val;
         }

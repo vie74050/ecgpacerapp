@@ -10,6 +10,7 @@ SMEs:
 - Sarah Neville
 
 ## 1. How instructors set up variables for the case
+
 ![image](https://user-images.githubusercontent.com/5272116/227010139-44b6a5be-5b99-4c89-8361-91cd7f9ab46c.png)
 
 ### Load from file
@@ -56,7 +57,7 @@ Refer to `Param name(s)` associated with each variable in the docs.
 - suffix `_h` (height) and `_w` (width) should be passed a number
 - suffix `_cb` (checkbox) should be passed `true` or `false`
 
-##### Example 
+##### Example
 
 > {URL}`?sn_r=60&p_h=0&bpgraph=0&pr_cb=true`
 >
@@ -143,16 +144,21 @@ i.e. The corresponding pacer Output mA must be >= than the threshold in order fo
 
 Where user (student) adjust pacemaker settings to view changes
 
-~ Work in progress~  
-Need to define the base rhythm and key points that will interact with pacemaker (i.e atrial pulse looks at P signal, …etc.)
-
-1. Rate – sets the rate to emit pacer pulse
+1. Rate – sets the rate to emit pacer pulse (both A and V pulses)
 2. P – will flash when a pulse is emitted
 3. S - will flash when innate signal is sensed
-4. MODE - preset modes based on 3-Pacemaker Codes nomencalture
-    i. Chamber paced: A, V, D, O
-    ii. Chamber sensed: A, V, D, O
-    iii. Response to sensed: T, I D
+4. MODE - preset modes based on 3-letter Pacemaker Code nomenclature:
+
+   - DOO: A and V paced, no sensing
+   - AAI: A paced and sensing, inhibit pacer pulse if sensed
+   - VVI: V paced and sensing, inhibit pacer pulse if sensed
+   - DDD: A + V paced and sensed, if sensed either inhibit or trigger pacer response
+
+   ```text
+    1st letter: Chamber paced: A, V, D, O  
+    2nd letter: Chamber sensed: A, V, D, O  
+    3rd letter: Response to sensed: Trigger `T`, Inhibit `I`, Dual 
+   ```
 
 ---
 

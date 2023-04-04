@@ -1,4 +1,4 @@
-let rhythms = {
+let RHYTHMS = {
     "normal80": { "title": "Normal 80bpm", 'sn_r': "80", "snr_cb": false, 'av_r': "80", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "1", "pr_cb": false, "qrs_n": "0", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
 
     "bradycardia40": { "title": "Bradycardia 40bpm", 'sn_r': "40", "snr_cb": false, 'av_r': "40", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "1", "pr_cb": false, "qrs_n": "0", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
@@ -14,4 +14,4 @@ let rhythms = {
     "ventescape": { "title": "2nd Venticular escape", 'sn_r': "10", "snr_cb": false, 'av_r': "40", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "5", "pr_cb": false, "qrs_n": "4", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" }
 }
 
-export { rhythms };
+export { RHYTHMS };
