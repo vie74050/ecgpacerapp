@@ -59,6 +59,7 @@ export function Setup(selectors: string) {
                 break;
         }
        
+        // response
         ResponseMode = modes[chars[2]];
        
         nX.dispatchEvent(new Event('change')); // redraw graphs

@@ -191,9 +191,9 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail capture
     let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;        //@TODO - fail sense 
     let asensitivity = p_h/h * maxH_mV > asense_mV ;       
-    let asensed = asensing 
-                    && asensitivity && -p>0
-                    && x - PPULSEX < dx3ps;    
+    let asensed = apace && asensing 
+                  && asensitivity && -p>0
+                  && x - PPULSEX < dx3ps;    
    
     // A Pulse	
     let a = 0, a_h = 60; 
@@ -218,13 +218,14 @@ function graphY(x: number, hr_graph: GraphMonitor) {
             }
         } else { // a sensing
             
-            if ( (x -  PPULSEX) % (dx3ps) < 5 ) {               
+            if ( (x -  PPULSEX) % (dx3ps) < 5 ) {   
+                // inhibit if a sensed            
                 if (asensed && (responsemode == 1 || responsemode == 3)) {
                     // atrial sensed (p)
                     s_detect.checked = true;
 
                     if ((x -  PPULSEX) % (dx3ps) < 1 && labels_cb)
-                        hr_graph.Label("as", dx, 20);
+                        hr_graph.Label("as", dx, 30);
 
                 }else {
                     
@@ -242,7 +243,8 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }  
     
     // A Response Curves
-    if (apace && acapture && !asensed && APULSEX >= dx3ps) { 
+    const doAResponse = apace && acapture && !asensed && APULSEX >= dx3ps;
+    if (doAResponse) { 
         
         p_i = APULSEX + 5;
         q_i = p_i + (p_w + q_w / 2 + p_q_interval) * (w / dT);
@@ -250,7 +252,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
         t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
        
-        p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, 5, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
+        p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, p_h, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
         
         // trigger innate qrst ?
         r_dx_max = r_i + AV_VAR;
@@ -270,6 +272,8 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }
 
     /** PACER V PULSE & RESPONSE **/
+    const qrs_w = (q_w + r_w + s_w ) * (4 * w / dT); //console.log(qrs_w);
+    const delay = (responsemode>=2 && doAResponse)? qrs_w : 0;
     const offsetv = offseta + 9.5*p_w * (w / dT);
     let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
     let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
@@ -277,14 +281,13 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let vsensitivity = r_h/h * maxH_mV > vsense_mV;  
     let vsensed =  vsensing 
                     && vsensitivity
-                    && x - RPULSEX < dx3ps ;         //@TODO - delta x > refractory period?                          
+                    && x - RPULSEX < dx3ps + delay;         
 
     // V Pulse
     let v = 0, v_h = 80;
+   
+    if ( x > offsetv && vpacing && x > dx3ps ) {
 
-         
-
-    if (x > offsetv && vpacing && x > dx3ps) {
         if (!vsensing || !vsensitivity) {
             // V pacing but not sensing
             if ( (x - offsetv) % dx3ps < 5) {
@@ -303,7 +306,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                     s_detect.checked = true; //console.log("vsensed");
 
                     if ((x - RPULSEX) % (dx3ps) < 1 && labels_cb) {
-                        hr_graph.Label("vs", dx, 20);
+                        hr_graph.Label("vs", dx, 30);
                     }
                 }else {
                     
@@ -320,7 +323,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }
     
     // V Response
-    let doVResponse = vpacing && vcapture && !vsensed && VPULSEX > PPULSEX && VPULSEX >= dx3ps;
+    const doVResponse = vpacing && vcapture && !vsensed && VPULSEX > PPULSEX && VPULSEX >= dx3ps;
     if (doVResponse) { //console.log('triggering v');        
         
         r_h = -50 * noise;

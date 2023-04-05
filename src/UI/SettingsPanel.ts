@@ -11,8 +11,6 @@ export function Setup(selectors: string): void {
     const displayNodes: IDomNodes = Display.DisplayNodes;
     const nX: HTMLInputElement = Display.nX;
 
-    handleURLLoad();
-
     const reset_btn = document.getElementById('reset_btn');
     reset_btn.onclick = (event: Event) => {
         resetInputsToDefault();
@@ -68,7 +66,8 @@ export function Setup(selectors: string): void {
 
             // omit if same as default
             if (data.type == 'checkbox' && val == data.defaultChecked
-                || val === data.defaultValue) {
+                || val === data.defaultValue
+                || curr==='innate-sel') {
                 newparam = '';
             }
             
@@ -155,8 +154,26 @@ export function Setup(selectors: string): void {
             nX.dispatchEvent(new Event('change')); // redraw graphs
         });
     }
+
+    handleURLLoad();
 }
 function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes): void {
+        
+    const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
+    const options = presets_sel.options;
+    const optkeys = [...options].map(el=>el.value); 
+    
+    if (!( optkeys.includes(fname) )) {
+        let newoption = document.createElement('option') as HTMLOptionElement;
+        newoption.value = fname;
+        newoption.textContent = data['title'] ? data['title'] : fname;
+
+        //loaded element will be added to top -- becomes new default data for reset    
+        presets_sel.add(newoption, presets_sel.options[0]);
+        presets_sel.value = fname;
+        RHYTHMS[fname] = data;
+    }
+
     let k: keyof typeof data;
     for (k in data) {
         // set Settings
@@ -167,22 +184,8 @@ function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes): 
             else if (target.type === 'checkbox')
                 target.checked = data[k] === true || data[k] === 'true';
 
-            target.dispatchEvent(new Event('change'));
+            if (k!='innate-sel') target.dispatchEvent(new Event('change'));
         }
-    }
-
-    const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
-    const options = presets_sel.options;
-    const optkeys = [...options].map(el=>el.value);
-    if (!( fname in optkeys )) {
-        let newoption = document.createElement('option') as HTMLOptionElement;
-        newoption.value = fname;
-        newoption.textContent = data['title'] ? data['title'] : fname;
-
-        //loaded element will be added to top -- becomes new default data for reset    
-        presets_sel.add(newoption, presets_sel.options[0]);
-        presets_sel.value = fname;
-
     }
 }
 
@@ -254,7 +257,7 @@ function handleURLLoad(): void {
             initdata[key] = val;
         }
 
-        if (key === 'title') initdata['title'] = val;
+        if (key === 'title' || key === 'innate-sel') initdata['title'] = val;
     });
     if (Object.keys(initdata).length>0) {
         let title = initdata['title'] || 'Custom'; //console.log(setup_params);
