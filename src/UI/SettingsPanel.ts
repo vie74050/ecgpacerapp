@@ -162,7 +162,7 @@ function SetContent(fname: string, data: any, SETTINGS_INPUTS: IDomInputNodes): 
     const presets_sel = (document.getElementById('innate-sel')) as HTMLSelectElement;
     const options = presets_sel.options;
     const optkeys = [...options].map(el=>el.value); 
-    console.log(optkeys);
+    //console.log(optkeys);
     if (!( optkeys.includes(fname) )) {
         let newoption = document.createElement('option') as HTMLOptionElement;
         newoption.value = fname;

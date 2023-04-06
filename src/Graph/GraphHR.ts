@@ -6,6 +6,7 @@ import * as Ref from "../Presets/ReferenceDefaults";
 import * as SETTINGS from '../UI/SettingsPanel';
 import * as PACER from '../UI/PacerPanel';
 import * as DISPLAY from '../UI/DisplayPanel';
+import { nX } from "../UI/DisplayPanel";
 
 var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS, 
     PACER_INPUTS: IDomInputNodes = PACER.INPUTS,
@@ -27,14 +28,10 @@ export class HRGraph extends GraphMonitor {
     constructor (canvasId: string, opts?: IGraphOptions) {
         super(canvasId);
         reset();
-
+        nX.addEventListener("change", reset); 
         this.Y = (x) => graphY(x, this);
     }
 
-    updatenX = () => {
-        super.updatenX();
-        reset();
-    };
 }
 
 function reset(){
@@ -50,7 +47,8 @@ function reset(){
 
     SETTINGS_INPUTS = SETTINGS.INPUTS;
     PACER_INPUTS = PACER.INPUTS;
-    DISPLAY_ELEMS = DISPLAY.DisplayNodes;
+    DISPLAY_ELEMS = DISPLAY.DisplayNodes; 
+    //console.log("reset HR Graph VARS");
 } 
 function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
     let str = "--";
@@ -180,7 +178,16 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         q = Pulse(x, q_i + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));        
+        t = Pulse(x, t_i + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));    
+        
+        if ( Math.floor(x - r_dx_max) == 0) { 
+            
+            if (-r>0) {
+                if (labels_cb) hr_graph.Label("r", dx, 30, 8); 
+                //console.log(r);
+                RPULSEX = x;
+            }; 
+        }
     }
 
     //** PACER A PULSE & RESPONSE **//
@@ -225,7 +232,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                     s_detect.checked = true;
 
                     if ((x -  PPULSEX) % (dx3ps) < 1 && labels_cb)
-                        hr_graph.Label("as", dx, 30);
+                        hr_graph.Label("as", dx, 120);
 
                 }else {
                     
@@ -243,7 +250,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }  
     
     // A Response Curves
-    const doAResponse = apace && acapture && !asensed && APULSEX >= dx3ps;
+    const doAResponse = apace && acapture && !asensed && APULSEX >= dx3ps && responsemode>=2;
     if (doAResponse) { 
         
         p_i = APULSEX + 5;
@@ -260,15 +267,15 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         r = Math.floor(Math.abs(r))==0? Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT)) : r;
         s = Math.floor(Math.abs(s))==0? Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT)) : s;
         t = Math.floor(Math.abs(t))==0? Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT)) : t;
-    }
-
-    if ( Math.floor(x - r_dx_max) == 0) { 
+        
+        if ( Math.floor(x - r_dx_max) == 0) { 
             
-        if (-r>0) {
-            if (labels_cb) hr_graph.Label("r", dx-10, 40, 8); 
-            //console.log(r);
-            RPULSEX = x;
-        }; 
+            if (-r>0) {
+                if (labels_cb) hr_graph.Label("rt", dx, h-15, 10); 
+                //console.log(r);
+                RPULSEX = x;
+            }; 
+        }
     }
 
     /** PACER V PULSE & RESPONSE **/
@@ -279,13 +286,14 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
     let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
     let vsensitivity = r_h/h * maxH_mV > vsense_mV;  
+    let vsenseAtX = RPULSEX + delay; 
     let vsensed =  vsensing 
                     && vsensitivity
-                    && x - RPULSEX < dx3ps + delay;         
+                    && x  < dx3ps + vsenseAtX;         
 
     // V Pulse
     let v = 0, v_h = 80;
-   
+    
     if ( x > offsetv && vpacing && x > dx3ps ) {
 
         if (!vsensing || !vsensitivity) {
@@ -306,7 +314,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                     s_detect.checked = true; //console.log("vsensed");
 
                     if ((x - RPULSEX) % (dx3ps) < 1 && labels_cb) {
-                        hr_graph.Label("vs", dx, 30);
+                        hr_graph.Label("vs", dx, 130);
                     }
                 }else {
                     
@@ -323,20 +331,13 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }
     
     // V Response
-    const doVResponse = vpacing && vcapture && !vsensed && VPULSEX > PPULSEX && VPULSEX >= dx3ps;
-    if (doVResponse) { //console.log('triggering v');        
-        
-        r_h = -50 * noise;
-        r_w = 0.04* dx3ps;
-        r_i = VPULSEX+10;
-
-        t_h = 25 * noise;
-        t_w = 0.08 * dx3ps;
-        t_i = r_i + 2 * t_w;
-        
-        r = Pulse(x, r_i, r_h, r_w);
-        t = Pulse(x, t_i, t_h, t_w);
-        
+    const doVResponse = vpacing && vcapture && !vsensed && VPULSEX >= dx3ps;
+    
+    if (doVResponse) {        
+        let vr = graphVResponse(x, VPULSEX+10, dx3ps);   
+        if ( Math.abs(Math.floor(vr)) > 0 )  r += vr;            
+    }else {
+        //console.log("no v response", vpacing, vcapture, !vsensed, VPULSEX > RPULSEX, VPULSEX >= dx3ps);
     }
 
     let y = a + p + v + q + r + s + t;
@@ -344,19 +345,21 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     // Update R-R interval, HR
     let bpm = avr_bpm;
     //HR_BPM = HR_BPM==0? bpm : HR_BPM;
-    let deltaRRx = Math.round( bpm );
-    if ( x == RPULSEX  && RPULSEX != RRPrevX && !doVResponse) {
-        bpm =  RRPrevX > 0 ? (60/((RPULSEX - RRPrevX)*dT/w)) : bpm;
-        deltaRRx = Math.round( bpm ); 
-        updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
-        RRPrevX = RPULSEX;
+    
+    if ( (x == RPULSEX || x == VPULSEX) 
+        && RPULSEX != RRPrevX
+    ) 
+    {
+        let deltaRRx = x==RPULSEX? RPULSEX - RRPrevX : VPULSEX - RRPrevX;
+        
+        if (deltaRRx > 10) {
+            bpm = RRPrevX>0? (60/((deltaRRx)*dT/w)) : bpm;
+            updateDisplayHR( Math.round( bpm ), DISPLAY_ELEMS);
+            RRPrevX =  x==RPULSEX? RPULSEX : VPULSEX;
+        }console.log(deltaRRx, VPULSEX, RPULSEX, RRPrevX);
+        
     }
-    if ( x == VPULSEX  && VPULSEX != RRPrevX && doVResponse) {
-        bpm = (60/((VPULSEX - RRPrevX)*dT/w));
-        deltaRRx = Math.round( bpm );
-        updateDisplayHR(deltaRRx, DISPLAY_ELEMS);
-        RRPrevX = VPULSEX;
-    }
+    
         
     return Math.min(y + h / 2, h);
 }
@@ -388,3 +391,20 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 
     return p + h/2;
 }
+
+/* Pacer signals */
+function graphVResponse(x: number, xi:number, rate_dx: number): number {
+    const r_h = -50, 
+        r_w = 0.04*rate_dx,
+        r_i = xi;
+    const t_h = 25,
+        t_w = 0.08 * rate_dx,
+        t_i = r_i + 2 * t_w;
+    const r = Pulse(x, r_i, r_h, r_w);
+    const t = Pulse(x, t_i, t_h, t_w);
+
+    let y = r + t;
+
+    return y;
+}
+
