@@ -250,7 +250,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }  
     
     // A Response Curves
-    const doAResponse = apace && acapture && !asensed && APULSEX >= dx3ps && responsemode>=2;
+    const doAResponse = apace && acapture && !asensed && APULSEX >= dx3ps;
     if (doAResponse) { 
         
         p_i = APULSEX + 5;
@@ -262,19 +262,20 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, p_h, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
         
         // trigger innate qrst ?
-        r_dx_max = r_i + AV_VAR;
-        q = Math.floor(Math.abs(q))==0? Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT)) : q;
-        r = Math.floor(Math.abs(r))==0? Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT)) : r;
-        s = Math.floor(Math.abs(s))==0? Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT)) : s;
-        t = Math.floor(Math.abs(t))==0? Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT)) : t;
-        
-        if ( Math.floor(x - r_dx_max) == 0) { 
+        if (responsemode >= 2) {
+            r_dx_max = r_i + AV_VAR;
+            q = Math.floor(Math.abs(q))==0? Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT)) : q;
+            r = Math.floor(Math.abs(r))==0? Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT)) : r;
+            s = Math.floor(Math.abs(s))==0? Pulse(x, s_i + AV_VAR , s_h * noise * drop, s_w * (w / dT)) : s;
+            t = Math.floor(Math.abs(t))==0? Pulse(x, t_i + AV_VAR , t_h * noise * drop, t_w * (w / dT)) : t;
             
-            if (-r>0) {
-                if (labels_cb) hr_graph.Label("rt", dx, h-15, 10); 
-                //console.log(r);
-                RPULSEX = x;
-            }; 
+            if ( Math.floor(x - r_dx_max) == 0) { 
+                               if (-r>0) {
+                    if (labels_cb) hr_graph.Label("rt", dx, h-15, 10); 
+                    //console.log(r);
+                    RPULSEX = x;
+                }; 
+            }
         }
     }
 
@@ -335,7 +336,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     
     if (doVResponse) {        
         let vr = graphVResponse(x, VPULSEX+10, dx3ps);   
-        if ( Math.abs(Math.floor(vr)) > 0 )  r += vr;            
+        if ( Math.abs(Math.floor(vr)) > 0 )  r = vr;            
     }else {
         //console.log("no v response", vpacing, vcapture, !vsensed, VPULSEX > RPULSEX, VPULSEX >= dx3ps);
     }
@@ -347,16 +348,16 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     //HR_BPM = HR_BPM==0? bpm : HR_BPM;
     
     if ( (x == RPULSEX || x == VPULSEX) 
-        && RPULSEX != RRPrevX
+        && (RPULSEX > 0 || VPULSEX > 0)
     ) 
     {
         let deltaRRx = x==RPULSEX? RPULSEX - RRPrevX : VPULSEX - RRPrevX;
-        
+        //console.log(x, deltaRRx, VPULSEX, RPULSEX, RRPrevX);
         if (deltaRRx > 10) {
             bpm = RRPrevX>0? (60/((deltaRRx)*dT/w)) : bpm;
             updateDisplayHR( Math.round( bpm ), DISPLAY_ELEMS);
             RRPrevX =  x==RPULSEX? RPULSEX : VPULSEX;
-        }console.log(deltaRRx, VPULSEX, RPULSEX, RRPrevX);
+        }
         
     }
     
