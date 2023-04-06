@@ -262,7 +262,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, p_h, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
         
         // trigger innate qrst ?
-        if (responsemode >= 2) {
+        if (responsemode >= 1) {
             r_dx_max = r_i + AV_VAR;
             q = Math.floor(Math.abs(q))==0? Pulse(x, q_i + AV_VAR , q_h * noise * drop, q_w * (w / dT)) : q;
             r = Math.floor(Math.abs(r))==0? Pulse(x, r_i + AV_VAR , r_h * noise * drop, r_w * (w / dT)) : r;
