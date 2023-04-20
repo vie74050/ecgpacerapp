@@ -90,8 +90,11 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked;
     
     // pacer vars
-    const p_detect = PACER_INPUTS["p_detect"];
-    const s_detect = PACER_INPUTS["s_detect"];
+    const ap_detect = PACER_INPUTS["ap_detect"];
+    const as_detect = PACER_INPUTS["as_detect"];
+    const vp_detect = PACER_INPUTS["vp_detect"];
+    const vs_detect = PACER_INPUTS["vs_detect"];
+    
     const pacer_bpm = Number(PACER_INPUTS["pacer_rate"].value);
     const aout_min = Number(SETTINGS_INPUTS["a_out_min"].value) || 0;
     const a_out_mA = Number(PACER_INPUTS["a_out"]?.value) || 0;
@@ -205,9 +208,9 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     // A Pulse	
     let a = 0, a_h = 60; 
                    
-    s_detect.checked = false;
-    p_detect.checked = false;
-
+    as_detect.checked = false;
+    ap_detect.checked = false;
+    
     let offseta = p_i  - (5 * p_w ) * (w / dT);
 
     if (x > offseta && apace && x >= dx3ps) {
@@ -215,7 +218,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         if (!asensing || !asensitivity) {
             // A pacing but not sensing
             if ( (x - offseta) % dx3ps < 5 ) {
-                p_detect.checked = true ;
+                ap_detect.checked = true ;
                 if ( (x - offseta) % dx3ps < 1 ){
                     a = a_h;
                     if (labels_cb) hr_graph.Label("A", dx, 20); 
@@ -229,14 +232,14 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                 // inhibit if a sensed            
                 if (asensed && (responsemode == 1 || responsemode == 3)) {
                     // atrial sensed (p)
-                    s_detect.checked = true;
+                    as_detect.checked = true;
 
                     if ((x -  PPULSEX) % (dx3ps) < 1 && labels_cb)
                         hr_graph.Label("as", dx, 120);
 
                 }else {
                     
-                    p_detect.checked = true;
+                    ap_detect.checked = true;
                     
                     if ((x -  PPULSEX) % (dx3ps) < 1){
                         a = a_h;
@@ -294,13 +297,15 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 
     // V Pulse
     let v = 0, v_h = 80;
+    vs_detect.checked = false;
+    vp_detect.checked = false;
     
     if ( x > offsetv && vpacing && x > dx3ps ) {
 
         if (!vsensing || !vsensitivity) {
             // V pacing but not sensing
             if ( (x - offsetv) % dx3ps < 5) {
-                p_detect.checked = true;
+                vp_detect.checked = true;
                 if ((x - offsetv) % dx3ps < 1){
                     v = v_h;
                     if (labels_cb) hr_graph.Label("V", dx, 20);
@@ -312,14 +317,14 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                 //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
                 if (vsensed && (responsemode == 1 || responsemode == 3)) {
                     // vent. activity sensed (r)
-                    s_detect.checked = true; //console.log("vsensed");
+                    vs_detect.checked = true; //console.log("vsensed");
 
                     if ((x - RPULSEX) % (dx3ps) < 1 && labels_cb) {
                         hr_graph.Label("vs", dx, 130);
                     }
                 }else {
                     
-                    p_detect.checked = true;
+                    vp_detect.checked = true;
 
                     if ((x - RPULSEX) % (dx3ps) < 1){
                         v = v_h;

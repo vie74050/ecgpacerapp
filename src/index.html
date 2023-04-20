@@ -33,9 +33,15 @@
     
     <section id="_pacer" class="_pacer">
       <div class="row">
-        <span><label title="P fired">P</label><input id="p_detect" type="radio" disabled></span>
         <span>
-          <label title="Signal sensed">S</label><input id="s_detect" type="radio" disabled>
+          <div class="pulselight"><input title="Atrial pulse" id="ap_detect" type="radio" disabled><br/>P</div>
+          <div class="pulselight label">A</div>
+          <div class="pulselight"><input title="Atrial sense" id="as_detect" type="radio" disabled><br/>S</div>
+        </span>
+        <span>
+          <div class="pulselight"><input title="Ventricle pulse" id="vp_detect" type="radio" disabled><br/>P</div>
+          <div class="pulselight label">V</div>
+          <div class="pulselight"><input title="Ventricle sense" id="vs_detect" type="radio" disabled><br/>S</div>
         </span>
       </div>
       <hr />
