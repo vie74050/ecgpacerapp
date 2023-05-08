@@ -1,4 +1,9 @@
-# ECG Pacemaker Web App
+# ECG Pacemaker Web App #
+
+(c) 2023 May 4 Vienna Ly  
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a></a>
+
+## About ##
 
 Single page webapp to simulate ECG and pacemaker functions, used as a teaching and learning tool.
 
@@ -8,6 +13,7 @@ SMEs:
 
 - Michelle Dunphy
 - Sarah Neville
+- El Ladha
 
 ## 1. How instructors set up variables for the case
 
