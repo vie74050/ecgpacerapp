@@ -31,14 +31,15 @@ input[type=number]::-webkit-outer-spin-button {
 
 	.monitor-row {
 		position: relative;
-		height: $chart_h + px;
-
+		height: fit-content;
+		background-color: #111;
+		
 		.mon-graph {
 			box-sizing: border-box;
 			border: 1px solid gray;
-			background-color: #111;
+			
 			width: $chart_w + px;
-			height: 100%;
+			height: $chart_h + px;
 		}
 
 		.mon-display {
@@ -49,7 +50,6 @@ input[type=number]::-webkit-outer-spin-button {
 			height: 100%;
 			box-sizing: border-box;
 			padding: 0.2em 1em;
-			background-color: #111;
 			color: white;
 
 			.value {

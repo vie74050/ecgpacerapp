@@ -26,7 +26,7 @@ export {HR_BPM, RRPrevX};
 export class HRGraph extends GraphMonitor {
     
     constructor (canvasId: string, opts?: IGraphOptions) {
-        super(canvasId);
+        super(canvasId, opts);
         reset();
         nX.addEventListener("change", reset); 
         this.Y = (x) => graphY(x, this);

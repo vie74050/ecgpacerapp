@@ -27,16 +27,21 @@ export class GraphMonitor {
 
         let canvas = document.getElementById(this.CANVAS_ID) as HTMLCanvasElement;
         let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-        canvas.width = this.WIDTH;
-        canvas.height = this.HEIGHT + 10; //5px for xaxis
+        
         this.CANVAS = canvas;
         this.CTX = ctx;
         this.x = -1;
         this.continueAnimation = false;
-        this.init();   
+          
         
+        canvas.width = this.WIDTH;
+        canvas.height = this.HEIGHT + 10; // for xaxis
+        canvas.setAttribute("style", "width:"+this.WIDTH + "px; " + "height:"+this.HEIGHT+"px");
+
         window.addEventListener('playpause', this.playPause);
         nX.addEventListener("change", this.updatenX); 
+        
+        this.init(); 
     }
 
     private init = () => {
@@ -85,7 +90,7 @@ export class GraphMonitor {
             ctx.clearRect(0, 0, width, height + 0.5);
         } else {
             ctx.lineTo(x % width, y);
-            ctx.lineWidth = 0.1;
+            ctx.lineWidth = 0.015;
             ctx.strokeStyle = this.LINE_COLOUR;
             ctx.stroke();
         }

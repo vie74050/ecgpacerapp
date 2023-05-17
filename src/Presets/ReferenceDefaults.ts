@@ -3,11 +3,11 @@
 // w ~ 0.1 * sec, h ~ px
 import { IPulse } from "../Interfaces";
 
-var p: IPulse = {w: 0.012, h: 10, i: 0.2},
-    pq: IPulse = {w: 0.04, h: 0},
+var p: IPulse = {w: 0.03, h: 8, i: 0.15},
+    pq: IPulse = {w: 0.1, h: 0},
     q: IPulse = {w: 0.005, h: -10},
-    r: IPulse = {w: 0.009, h: 60},
-    s: IPulse = {w: 0.010, h: -20},
+    r: IPulse = {w: 0.012, h: 70},
+    s: IPulse = {w: 0.012, h: -40},
     st: IPulse = {w: 0.20, h: 0},
-    t: IPulse = {w: 0.040, h: 10};
+    t: IPulse = {w: 0.050, h: 10};
 export {p, pq, q, r, s, t, st}
