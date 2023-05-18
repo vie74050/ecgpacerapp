@@ -73,7 +73,7 @@ export class GraphMonitor {
     private animate = () => {
         const width = this.WIDTH;
         const height = this.HEIGHT;
-        const line_w = 0.01;
+        const line_w = 0.02;
         const ctx = this.CTX;
         const x = this.x;
         const y = this.GetYatX(x);
