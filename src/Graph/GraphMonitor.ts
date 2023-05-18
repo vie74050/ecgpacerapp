@@ -14,7 +14,7 @@ export class GraphMonitor {
     //defaults
     HEIGHT: number = 200;
     WIDTH: number = 600;
-    LINE_COLOUR: string = "#22ff22";
+    LINE_COLOUR: string = "#22ff22ff";
     nDIVX: number = 10;
 
     constructor(canvasId: string, opts?: IGraphOptions) {
@@ -33,7 +33,6 @@ export class GraphMonitor {
         this.x = -1;
         this.continueAnimation = false;
           
-        
         canvas.width = this.WIDTH;
         canvas.height = this.HEIGHT + 10; // for xaxis
         canvas.setAttribute("style", "width:"+this.WIDTH + "px; " + "height:"+this.HEIGHT+"px");
@@ -72,11 +71,12 @@ export class GraphMonitor {
     }
 
     private animate = () => {
-        let width = this.WIDTH;
-        let height = this.HEIGHT;
-        let ctx = this.CTX;
-        let x = this.x;
-        let y = this.GetYatX(x);
+        const width = this.WIDTH;
+        const height = this.HEIGHT;
+        const line_w = 0.01;
+        const ctx = this.CTX;
+        const x = this.x;
+        const y = this.GetYatX(x);
 
         if (this.continueAnimation) {
             requestAnimationFrame(this.animate);
@@ -90,7 +90,7 @@ export class GraphMonitor {
             ctx.clearRect(0, 0, width, height + 0.5);
         } else {
             ctx.lineTo(x % width, y);
-            ctx.lineWidth = 0.015;
+            ctx.lineWidth = line_w;
             ctx.strokeStyle = this.LINE_COLOUR;
             ctx.stroke();
         }

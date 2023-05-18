@@ -1,5 +1,5 @@
 $chart_w: 600;
-$chart_h: 200;
+$chart_h: 250;
 
 *,
 html,
@@ -29,11 +29,17 @@ input[type=number]::-webkit-outer-spin-button {
 	flex-direction: column;
 	float: left;
 
+	canvas {
+		image-rendering: -moz-crisp-edges;
+		image-rendering: -webkit-crisp-edges;
+		image-rendering: pixelated;
+		image-rendering: crisp-edges;
+	}
 	.monitor-row {
 		position: relative;
 		height: fit-content;
 		background-color: #111;
-		
+
 		.mon-graph {
 			box-sizing: border-box;
 			border: 1px solid gray;

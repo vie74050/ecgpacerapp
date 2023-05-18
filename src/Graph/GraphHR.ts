@@ -158,7 +158,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         if ( Math.floor(x - p_dx_max) == -5) { 
             
             if (-p>0) {
-                if (labels_cb) hr_graph.Label("p", dx, 80, 8);
+                if (labels_cb) hr_graph.Label("p", dx, 50, 8);
                 PPULSEX = x;
             }; 
         }
@@ -392,7 +392,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
        
     // Innate P wave
     p = Pulse(x, p_i, p_h * noise, p_w * (w / dT));
-    if (labels_cb) hr_graph.Label("p", p_i-10, 80, 8);
+    if (labels_cb) hr_graph.Label("p", p_i-10, 50, 8);
     PPULSEX = p_i;
 
     return p + h/2;
