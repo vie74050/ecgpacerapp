@@ -148,12 +148,14 @@ export function Setup(selectors: string): void {
     
     }
 
+    /*
     const innateInputs = $('._innateSettings input');
     for (let i = 0; i < innateInputs.length; i++) {
         innateInputs[i].addEventListener("change", (e) => { 
             nX.dispatchEvent(new Event('change')); // redraw graphs
         });
     }
+    */
 
     handleURLLoad();
 }

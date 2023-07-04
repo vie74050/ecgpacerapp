@@ -3,7 +3,7 @@ let RHYTHMS = {
 
     "bradycardia40": { "title": "Bradycardia 40bpm", 'sn_r': "40", "snr_cb": false, 'av_r': "40", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "1", "pr_cb": false, "qrs_n": "0", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
 
-    "2ndavb1": { "title": "2nd Deg AV Block 1", 'sn_r': "80", "snr_cb": false, 'av_r': "80", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "2", "qrs_w": "1", "pr_cb": true, "qrs_n": "3", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
+    "2ndavb1": { "title": "2nd Deg AV Block 1", 'sn_r': "80", "snr_cb": false, 'av_r': "80", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "1", "pr_cb": true, "qrs_n": "3", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
 
     "2ndavb2": { "title": "2nd Deg AV Block 2", 'sn_r': "80", "snr_cb": false, 'av_r': "80", "avr_cb": false, "p_h": "1", "qrs_h": "1", "pr_w": "1", "qrs_w": "1", "pr_cb": false, "qrs_n": "3", "qrs_cb": false, 'st_w': "1", "t_w": "1", "s_h": "1", "t_h": "1", "a_out_min": "0", "v_out_min": "0", "sys_r": "100", "dia_r": "60" },
 

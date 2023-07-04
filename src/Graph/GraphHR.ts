@@ -23,15 +23,12 @@ var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS,
 
 export {HR_BPM, RRPrevX};
 
-export class HRGraph extends GraphMonitor {
-    
-    constructor (canvasId: string, opts?: IGraphOptions) {
-        super(canvasId, opts);
-        reset();
-        nX.addEventListener("change", reset); 
-        this.Y = (x) => graphY(x, this);
-    }
-
+export function Init(id: string) {
+    reset();
+    nX.addEventListener("change", reset); 
+    SETTINGS_INPUTS = SETTINGS.INPUTS; //console.log(SETTINGS_INPUTS);
+    let hrGraph = new GraphMonitor(id);
+    hrGraph.Y = (x) => graphY(x, hrGraph);
 }
 
 function reset(){
@@ -70,24 +67,27 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 
     // Get values from page
     // settings vars
-    const snr_bpm = Number(SETTINGS_INPUTS['sn_r'].value);
-    const avr_bpm = Number(SETTINGS_INPUTS['av_r'].value);
-    const p_h_mod = Number(SETTINGS_INPUTS["p_h"].value);
-    const pr_w_mod = Number(SETTINGS_INPUTS["pr_w"].value);
-    const st_mod = Number(SETTINGS_INPUTS['st_w'].value);
-    const t_w_mod = Number(SETTINGS_INPUTS["t_w"].value);
-    const qrs_n = Number(SETTINGS_INPUTS["qrs_n"].value);
-    const qrs_w_mod = Number(SETTINGS_INPUTS["qrs_w"].value);
-    const qrs_h_mod = Number(SETTINGS_INPUTS["qrs_h"].value);
-    const t_h_mod = Number(SETTINGS_INPUTS["t_h"].value);
+    const snr_bpm = Number(SETTINGS_INPUTS['sn_r']?.value);
+    const avr_bpm = Number(SETTINGS_INPUTS['av_r']?.value);
+    const p_h_mod = Number(SETTINGS_INPUTS["p_h"]?.value);
+    const p_w_mod = Number(SETTINGS_INPUTS["p_w"]?.value);
+    const pr_w_mod = Number(SETTINGS_INPUTS["pr_w"]?.value);
+    const st_w_mod = Number(SETTINGS_INPUTS['st_w']?.value);
+    const pr_h_mod = Number(SETTINGS_INPUTS["pr_h"]?.value); /*TODO? pr elevation*/
+    const st_h_mod = Number(SETTINGS_INPUTS['st_h']?.value); /*TODO?* st elevation*/
+    const t_w_mod = Number(SETTINGS_INPUTS["t_w"]?.value);
+    const qrs_n = Number(SETTINGS_INPUTS["qrs_n"]?.value);
+    const qrs_w_mod = Number(SETTINGS_INPUTS["qrs_w"]?.value);
+    const qrs_h_mod = Number(SETTINGS_INPUTS["qrs_h"]?.value);
+    const t_h_mod = Number(SETTINGS_INPUTS["t_h"]?.value);
     const s_h_mod = Number(SETTINGS_INPUTS["s_h"]?.value);
     const labels_cb = SETTINGS_INPUTS["labels"]?.checked; 
 
     // modifiers
-    const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked;
-    const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked;
-    const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked;
-    const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked;
+    const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked || false;
+    const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked || false;
+    const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked || false;
+    const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked || false;
     
     // pacer vars
     const ap_detect = PACER_INPUTS["ap_detect"];
@@ -113,9 +113,9 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 
     //** INNATE RHYTHM **//
     const n1 = Math.floor(x / dx1ps) || 0,
-          n2 = Math.floor(x / dx2ps) || 0;
+          n2 = Math.floor(x / dx2ps) || 0; 
 
-    let p = 0, q = 0, r = 0, s = 0.000, t = 0;
+    var p = 0, q = 0, r = 0, s = 0, t = 0;
 
     // default amplitudes
     let p_h = Ref.p.h * p_h_mod,
@@ -126,7 +126,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let noise = Math.random() * 0.2 + 1;
 
     // default durations (seconds)
-    let p_w = Ref.p.w,
+    let p_w = Ref.p.w * p_w_mod,
         q_w = Ref.q.w * qrs_w_mod,
         r_w = Ref.r.w * qrs_w_mod,
         s_w = Ref.s.w * qrs_w_mod,
@@ -137,11 +137,11 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let pq_multiplier = pr_cb ? qrs_drop_counter : 1;
     let p_q_interval = Ref.pq.w * pr_w_mod * pq_multiplier;
 
-    let p_i = (p_w / 2 + 0.2) * (w / dT); 
+    let p_i = (p_w / 2 + Ref.p.i) * (w / dT); 
     let q_i = p_i + (p_w + q_w / 2 + p_q_interval)* (w / dT);
-    let r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
-    let s_i = r_i + (r_w + s_w / 2 + 0.01 * (w / dT));
-    let t_i = s_i + (s_w + t_w / 2 + Ref.st.w * st_mod * (w / dT));
+    let r_i = q_i + (q_w + r_w / 2 + Ref.r.i) * (w / dT);
+    let s_i = r_i + (r_w + s_w / 2 + Ref.s.i * (w / dT));
+    let t_i = s_i + (s_w + t_w / 2 + Ref.st.w * st_w_mod * (w / dT));
 
     let p_dx_max = p_i + n1 * dx1ps;
     // Innate P wave
@@ -260,7 +260,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         q_i = p_i + (p_w + q_w / 2 + p_q_interval) * (w / dT);
         r_i = q_i + (q_w + r_w / 2 + 0.02) * (w / dT);
         s_i = r_i + (r_w + s_w / 2 + 0.01) * (w / dT);
-        t_i = s_i + (s_w + t_w / 2 + 0.20 * st_mod) * (w / dT);
+        t_i = s_i + (s_w + t_w / 2 + 0.20 * st_w_mod) * (w / dT);
        
         p = Math.floor(Math.abs(p))==0? Pulse(x, p_i, p_h, 0.01*dx3ps) : p; //console.log(n3, Math.floor(p_i));
         
@@ -366,36 +366,24 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         
     }
     
-        
     return Math.min(y + h / 2, h);
 }
 
  /* Innate signals */
- function graphP(x: number, hr_graph: GraphMonitor): number{
-    const w = hr_graph.WIDTH, 
-        h = hr_graph.HEIGHT, 
-        dT = hr_graph.nDIVX, 
-        maxH_mV = 10; // y-axis in mV --> full h in px
-    const dx = x % w;
-
-    // settings
-    const labels_cb = SETTINGS_INPUTS["labels"]?.checked; 
-
+ function graphP(x: number, xi: number, rate_dx: number): number{
     const p_h_mod = Number(SETTINGS_INPUTS["p_h"].value);
     
     const noise = Math.random() * 0.2 + 1;
     const p_h = Ref.p.h * p_h_mod;
     const p_w = Ref.p.w; 
-    const p_i = (p_w / 2 + 0.2) * (w / dT);
+    const p_i = (p_w / 2 + Ref.p.i) ;
 
     let p = 0;
        
     // Innate P wave
-    p = Pulse(x, p_i, p_h * noise, p_w * (w / dT));
-    if (labels_cb) hr_graph.Label("p", p_i-10, 50, 8);
-    PPULSEX = p_i;
+    p = Pulse(x, p_i + PPULSEX, p_h * noise, p_w);
 
-    return p + h/2;
+    return p;
 }
 
 /* Pacer signals */
