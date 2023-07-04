@@ -50,7 +50,7 @@ function reset(){
 function updateDisplayHR (hr:number, DISPLAY_ELEMS: IDomNodes) {
     let str = "--";
     
-    if (hr > 0 && hr < 300) { // hotfix 
+    if (hr > 0 && hr < 600) { // hotfix 
         str = hr.toString();
         HR_BPM = hr;
     }
@@ -181,7 +181,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
         q = Pulse(x, q_i + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
-        t = Pulse(x, t_i + n2 * dx2ps + AV_VAR, t_h * noise * drop, t_w * (w / dT));    
+        t = Pulse(x, t_i + n2 * dx2ps + AV_VAR, t_h * drop, t_w * (w / dT));    
         
         if ( Math.floor(x - r_dx_max) == 0) { 
             
