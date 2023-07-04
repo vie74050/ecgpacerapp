@@ -5,17 +5,14 @@ import * as SETTINGS from '../UI/SettingsPanel';
 
 var hr_bpm = 0;
 
-export class BPGraph extends GraphMonitor {
+export function Init(id: string) {
 
-    constructor (canvaseId: string, opts?: IGraphOptions) {
-        super(canvaseId, opts);
-
-        this.Y = (x) => GraphY(x, this);
-    }
+    let bpGraph = new GraphMonitor(id);
+    bpGraph.Y = (x) => graphY(x, bpGraph);
 }
 
 
-function GraphY(x: number, bp_graph: GraphMonitor) {
+function graphY(x: number, bp_graph: GraphMonitor) {
     const settings: IDomInputNodes = SETTINGS.INPUTS;
 
     const h = bp_graph.HEIGHT, w = bp_graph.WIDTH, dT = bp_graph.nDIVX, maxH = 240;

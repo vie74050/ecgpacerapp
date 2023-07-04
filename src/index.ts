@@ -1,7 +1,7 @@
 import './scss/styles.scss';
 import $ from "jquery";
-import { HRGraph } from "./Graph/GraphHR";
-import { BPGraph } from "./Graph/GraphBP";
+import * as HRGRAPH from "./Graph/GraphHR";
+import * as BPGraph from "./Graph/GraphBP";
 import * as UISettings from "./UI/SettingsPanel";
 import * as UIDisplay from "./UI/DisplayPanel";
 import * as UIPacer from "./UI/PacerPanel";
@@ -20,8 +20,8 @@ $(() => {
     // PACER events
     UIPacer.Setup("#_pacer input, #_pacer select");
     
-    new HRGraph("canvashr");
-    new BPGraph("canvasbp");    
+    HRGRAPH.Init("canvashr");
+    BPGraph.Init("canvasbp");    
     
     $("#_pacer").draggable({ containment: "window", stack: "section" });
     $("#_settings").draggable({ containment: "window", stack: "section" });
