@@ -1,11 +1,12 @@
 import './scss/styles.scss';
-import $ from "jquery";
+
 import * as HRGRAPH from "./Graph/GraphHR";
 import * as BPGraph from "./Graph/GraphBP";
 import * as UISettings from "./UI/SettingsPanel";
 import * as UIDisplay from "./UI/DisplayPanel";
 import * as UIPacer from "./UI/PacerPanel";
 
+var $ = require( 'jquery' );
 require('../node_modules/jquery-ui/dist/jquery-ui.min.js');
 
 $(() => {
@@ -22,7 +23,7 @@ $(() => {
     
     HRGRAPH.Init("canvashr");
     BPGraph.Init("canvasbp");    
-    
+
     $("#_pacer").draggable({ containment: "window", stack: "section" });
     $("#_settings").draggable({ containment: "window", stack: "section" });
 
