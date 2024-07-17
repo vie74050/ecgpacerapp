@@ -213,7 +213,11 @@ js-based HTML web app built using Typescript and SCSS for development.
 
 ### Set up ###
 
-**NB**: Requires `node.js`. If not already installed globally, download from <https://nodejs.org/en/>.
+#### `node.js` ####
+
+Testing on node v20.11.1. If not already installed, download from <https://nodejs.org/en/>.
+
+If multiple versions installed, switch to use this version: Run `nvm use v20.11.1` (requires nvm)
 
 Run `npm install`
 

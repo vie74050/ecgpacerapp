@@ -31,5 +31,9 @@
   },
   "repository": {
     "url": "git+https://github.com/vie74050/ecgpacerapp.git"
+  },
+  "engines" : { 
+    "npm" : ">=8.6.0 <9.0.0",
+    "node" : ">=20.11.1"
   }
 }
