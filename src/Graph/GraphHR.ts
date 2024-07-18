@@ -107,13 +107,15 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     const vsense_mV = Number(PACER_INPUTS["v_sense"].value) || 0;
     
 
-    // bpm --> bps --> pxps
-    const dx1ps = (60 / snr_bpm) * (w / dT) || 0,
-          dx2ps = (60 / avr_bpm) * (w / dT) || 0; 
-
+    // bpm --> bps --> pxps (pixels per second)
+    const dx1ps = (60 / snr_bpm) * (w / dT) || 0, 
+          dx2ps = (60 / avr_bpm) * (w / dT) || 0, 
+          dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
+    
     //** INNATE RHYTHM **//
     const n1 = Math.floor(x / dx1ps) || 0,
           n2 = Math.floor(x / dx2ps) || 0; 
+        //n3 = Math.floor(x / dx3ps) || 0
 
     var p = 0, q = 0, r = 0, s = 0, t = 0;
 
@@ -194,9 +196,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     }
 
     //** PACER A PULSE & RESPONSE **//
-    const dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
-    //const n3 = Math.floor(x / dx3ps) || 0
-        
+    let pulse_i_dx = 5;         
     let apace = !PACER_INPUTS["a_out"].disabled && pacer_bpm > 0;             //@TODO - fail pace 
     let acapture = a_out_mA > 0 && a_out_mA >= aout_min;                      //@TODO - fail capture
     let asensing = !PACER_INPUTS["a_sense"].disabled && pacer_bpm > 0;        //@TODO - fail sense 
@@ -206,18 +206,19 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                   && x - PPULSEX < dx3ps;    
    
     // A Pulse	
-    let a = 0, a_h = 60; 
-                   
+    let a = 0, a_h = -20; 
+                  
     as_detect.checked = false;
     ap_detect.checked = false;
     
+    // start spike relative to p_i start
     let offseta = p_i  - (5 * p_w ) * (w / dT);
 
     if (x > offseta && apace && x >= dx3ps) {
         //console.log(p_h/h * maxH_mV, p_h, h, p_w, w, dT) ; 
         if (!asensing || !asensitivity) {
             // A pacing but not sensing
-            if ( (x - offseta) % dx3ps < 5 ) {
+            if ( (x - offseta) % dx3ps < pulse_i_dx ) {
                 ap_detect.checked = true ;
                 if ( (x - offseta) % dx3ps < 1 ){
                     a = a_h;
@@ -228,7 +229,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
             }
         } else { // a sensing
             
-            if ( (x -  PPULSEX) % (dx3ps) < 5 ) {   
+            if ( (x -  PPULSEX) % (dx3ps) < pulse_i_dx ) {   
                 // inhibit if a sensed            
                 if (asensed && (responsemode == 1 || responsemode == 3)) {
                     // atrial sensed (p)
@@ -276,7 +277,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                                if (-r>0) {
                     if (labels_cb) hr_graph.Label("rt", dx, h-15, 10); 
                     //console.log(r);
-                    RPULSEX = x;
+                    RPULSEX = x+dx3ps;
                 }; 
             }
         }
@@ -286,17 +287,17 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     const qrs_w = (q_w + r_w + s_w ) * (4 * w / dT); //console.log(qrs_w);
     const delay = (responsemode>=2 && doAResponse)? qrs_w : 0;
     const offsetv = offseta + 9.5*p_w * (w / dT);
-    let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace
-    let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture
-    let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense 
+    let vpacing = !PACER_INPUTS["v_out"].disabled && pacer_bpm > 0;         //@TODO - fail to pace due to equipment
+    let vcapture = v_out_mA > 0 && v_out_mA >= vout_min;                    //@TODO - fail to capture due to equipment
+    let vsensing = !PACER_INPUTS["v_sense"].disabled;                       //@TODO - fail to vsense due to equipment
     let vsensitivity = r_h/h * maxH_mV > vsense_mV;  
-    let vsenseAtX = RPULSEX + delay; 
+    let vsenseAtX = RPULSEX + delay;                                        
     let vsensed =  vsensing 
                     && vsensitivity
                     && x  < dx3ps + vsenseAtX;         
 
     // V Pulse
-    let v = 0, v_h = 80;
+    let v = 0, v_h = -40;
     vs_detect.checked = false;
     vp_detect.checked = false;
     
@@ -304,7 +305,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 
         if (!vsensing || !vsensitivity) {
             // V pacing but not sensing
-            if ( (x - offsetv) % dx3ps < 5) {
+            if ( (x - offsetv) % dx3ps < pulse_i_dx) {
                 vp_detect.checked = true;
                 if ((x - offsetv) % dx3ps < 1){
                     v = v_h;
@@ -313,14 +314,15 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                 }
             }
         }else{
-            if ((x - RPULSEX) % (dx3ps) < 5) {
+            if ((x - RPULSEX) % (dx3ps) < pulse_i_dx) {
                 //console.log("v sensing", vsensing, vsensitivity, x-RPULSEX, dx3ps );
                 if (vsensed && (responsemode == 1 || responsemode == 3)) {
                     // vent. activity sensed (r)
                     vs_detect.checked = true; //console.log("vsensed");
-
+                    v=0;
                     if ((x - RPULSEX) % (dx3ps) < 1 && labels_cb) {
                         hr_graph.Label("vs", dx, 130);
+                        
                     }
                 }else {
                     
@@ -338,15 +340,25 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     
     // V Response
     const doVResponse = vpacing && vcapture && !vsensed && VPULSEX >= dx3ps;
-    
-    if (doVResponse) {        
-        let vr = graphVResponse(x, VPULSEX+10, dx3ps);   
-        if ( Math.abs(Math.floor(vr)) > 0 )  r = vr;            
+    let vr = 0; 
+    if (doVResponse) {
+        
+        // check if q, r, s, t are present
+        
+        if ( VPULSEX > RPULSEX) {
+            vr = Math.max(graphVResponse(x, VPULSEX+5, qrs_w), r);    
+        }
+        
+        
     }else {
-        //console.log("no v response", vpacing, vcapture, !vsensed, VPULSEX > RPULSEX, VPULSEX >= dx3ps);
+        //vr = 0;
+        //console.log(`no v response:`, `vpacing: ${vpacing}`, `vcapture: ${vcapture}`, `vsensed: ${vsensed}`, `VPULSEX: ${VPULSEX}`, `dx3ps: ${dx3ps}`);
     }
 
-    let y = a + p + v + q + r + s + t;
+    // a - pacer a pulse
+    // p - innate p wave
+    // v - pacer v pulse
+    let y = a + p + v + q + r + s + t + vr;
  
     // Update R-R interval, HR
     let bpm = avr_bpm;
