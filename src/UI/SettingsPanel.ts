@@ -113,9 +113,9 @@ export function Setup(selectors: string): void {
         //console.log(contents);
     };
 
-    const snr_btn = INPUTS['sn_r'];
-    snr_btn.onchange = (event: Event) => {
-        INPUTS['av_r'].value = snr_btn.value; 
+    const sar_btn = INPUTS['sa_r'];
+    sar_btn.onchange = (event: Event) => {
+        INPUTS['av_r'].value = sar_btn.value; 
     };
 
     const sys_btn = INPUTS['sys_r'];
@@ -138,11 +138,11 @@ export function Setup(selectors: string): void {
     for (let i = 0; i < ui_show_cbs.length; i++) {
         ui_show_cbs[i].onchange = (event: Event) => {
             const targ = (event.currentTarget as HTMLInputElement);
-            const targClassname = '._' + targ.id;
+            const targClassaame = '._' + targ.id;
             if (targ.checked) {
-                $(targClassname)?.show(); 
+                $(targClassaame)?.show(); 
             }else {
-                $(targClassname)?.hide(); 
+                $(targClassaame)?.hide(); 
             };
         };
     

@@ -64,26 +64,26 @@ Refer to `Param name(s)` associated with each variable in the docs.
 
 ##### Example #####
 
-> {URL}`?sn_r=60&p_h=0&bpgraph=0&pr_cb=true`
+> {URL}`?sa_r=60&p_h=0&bpgraph=0&pr_cb=true`
 >
-> - Sets **SN Rate** to 60 (and AV rate follows) and **P height** to 0  
+> - Sets **SA Rate** (Sinoatrial node) to 60 (and AV rate follows) and **P height** to 0  
 > - Hides BP graph
 
 ## **Innate Rhythm settings** ##
 
-### **SN rate** ###
+### **SA rate** ###
 
-Param name: `sn_r`
+Param name: `sa_r`
 
 P pulse rate.  If changed will also change **AV rate** likewise.  
 
-- **Irregular option** `snr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
+- **Irregular option** `sar_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
 
 ### **AV rate** ###
 
 Param name: `av_r`  
 
-Default: if unchanged, it will follow SN rate.  
+Default: if unchanged, it will follow SA rate.  
 
 - **Irregular option** `avr_cb`:  if checked (true), the associated rate will vary +/- 25% from the set rate.
 

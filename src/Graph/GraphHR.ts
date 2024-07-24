@@ -11,7 +11,7 @@ import { nX } from "../UI/DisplayPanel";
 var SETTINGS_INPUTS: IDomInputNodes = SETTINGS.INPUTS, 
     PACER_INPUTS: IDomInputNodes = PACER.INPUTS,
     DISPLAY_ELEMS: IDomNodes = DISPLAY.DisplayNodes,
-    SN_VAR: number = 0,
+    SA_VAR: number = 0,
     AV_VAR: number = 0,
     QRS_VAR: number = 0,
     RPULSEX: number = 0, // latest x when R 
@@ -32,7 +32,7 @@ export function Init(id: string) {
 }
 
 function reset(){
-    SN_VAR = 0;
+    SA_VAR = 0;
     AV_VAR = 0;
     QRS_VAR = 0;
     RPULSEX = 0; // latest x when R 
@@ -65,10 +65,11 @@ function graphY(x: number, hr_graph: GraphMonitor) {
           maxH_mV = 10; // y-axis in mV --> full h in px
     const dx = x % w;
 
-    // Get values from page
+    // GET USER INPUTS FROM PAGE
+
     // settings vars
-    const snr_bpm = Number(SETTINGS_INPUTS['sn_r']?.value);
-    const avr_bpm = Number(SETTINGS_INPUTS['av_r']?.value);
+    const sar_bpm = Number(SETTINGS_INPUTS['sa_r']?.value); // sinus node rate as beats per minute
+    const avr_bpm = Number(SETTINGS_INPUTS['av_r']?.value); // atrioventricular rate as beats per minute
     const p_h_mod = Number(SETTINGS_INPUTS["p_h"]?.value);
     const p_w_mod = Number(SETTINGS_INPUTS["p_w"]?.value);
     const pr_w_mod = Number(SETTINGS_INPUTS["pr_w"]?.value);
@@ -86,7 +87,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     // modifiers
     const pr_cb = SETTINGS_INPUTS["pr_cb"]?.checked || false;
     const qrs_cb = SETTINGS_INPUTS["qrs_cb"]?.checked || false;
-    const snr_cb = SETTINGS_INPUTS["snr_cb"]?.checked || false;
+    const sar_cb = SETTINGS_INPUTS["sar_cb"]?.checked || false;
     const avr_cb = SETTINGS_INPUTS["avr_cb"]?.checked || false;
     
     // pacer vars
@@ -108,7 +109,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     
 
     // bpm --> bps --> pxps (pixels per second)
-    const dx1ps = (60 / snr_bpm) * (w / dT) || 0, 
+    const dx1ps = (60 / sar_bpm) * (w / dT) || 0, 
           dx2ps = (60 / avr_bpm) * (w / dT) || 0, 
           dx3ps = (60 / pacer_bpm) * (w / dT) || 0;
     
@@ -145,16 +146,16 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let s_i = r_i + (r_w + s_w / 2 + Ref.s.i * (w / dT));
     let t_i = s_i + (s_w + t_w / 2 + Ref.st.w * st_w_mod * (w / dT));
 
-    let p_dx_max = p_i + n1 * dx1ps;
+    let p_dx_max = p_i + n1 * dx1ps; 
     // Innate P wave
-    if (snr_bpm > 0) {
+    if (sar_bpm > 0) {
 
-        // update params on new SN beat
+        // update params on new SA beat
         if (Math.floor((hr_graph.X - 1) / dx1ps) != n1) {
-            // arrhythmia due to variable sn node rate +/- 25%
-            SN_VAR = snr_cb ? 0.75 * dx1ps * Math.random() * 0.25 + 1 : 0;
+            // arrhythmia due to variable sa node rate +/- 25%
+            SA_VAR = sar_cb ? 0.75 * dx1ps * Math.random() * 0.25 + 1 : 0;
         };
-        p_dx_max = p_i + n1 * dx1ps + SN_VAR;
+        p_dx_max = p_i + n1 * dx1ps + SA_VAR;
         p = Pulse(x, p_dx_max, p_h * noise, p_w * (w / dT));
         
         if ( Math.floor(x - p_dx_max) == -5) { 
@@ -171,15 +172,15 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     if (avr_bpm > 0) {
         // update params on new AV beat
         if (Math.floor((hr_graph.X - 1) / dx2ps) != n2) {
-            // arrhythmia due to variable sn node rate +/- 25%
-            AV_VAR = avr_cb ? 0.75 * dx2ps * Math.random() * 0.25 + 1 : SN_VAR;
+            // arrhythmia due to variable sa node rate +/- 25%
+            AV_VAR = avr_cb ? 0.75 * dx2ps * Math.random() * 0.25 + 1 : SA_VAR;
 
             // drop qrs randomly based on qrs_n -- min qrs_n, max 2*qrs_n 
             QRS_VAR = qrs_cb ? getRandomInt(0, qrs_n) : 0; //console.log(qrs_drop_counter,drop);
 
         };
 
-        r_dx_max = r_i + n2 * dx2ps + AV_VAR;
+        r_dx_max = r_i + n2 * dx2ps + AV_VAR; 
         q = Pulse(x, q_i + n2 * dx2ps + AV_VAR, q_h * noise * drop, q_w * (w / dT));
         r = Pulse(x, r_dx_max, r_h * noise * drop, r_w * (w / dT));
         s = Pulse(x, s_i + n2 * dx2ps + AV_VAR, s_h * noise * drop, s_w * (w / dT));
@@ -206,7 +207,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                   && x - PPULSEX < dx3ps;    
    
     // A Pulse	
-    let a = 0, a_h = -20; 
+    let a = 0, a_h = 20; 
                   
     as_detect.checked = false;
     ap_detect.checked = false;
@@ -297,7 +298,7 @@ function graphY(x: number, hr_graph: GraphMonitor) {
                     && x  < dx3ps + vsenseAtX;         
 
     // V Pulse
-    let v = 0, v_h = -40;
+    let v = 0, v_h = 40;
     vs_detect.checked = false;
     vp_detect.checked = false;
     
@@ -343,10 +344,12 @@ function graphY(x: number, hr_graph: GraphMonitor) {
     let vr = 0; 
     if (doVResponse) {
         
-        // check if q, r, s, t are present
-        
-        if ( VPULSEX > RPULSEX) {
-            vr = Math.max(graphVResponse(x, VPULSEX+5, qrs_w), r);    
+        // check if innate is stil in refractory period
+        // i.e. VPULSEX > RPULSEX + qrs_w,
+        // where RPULSEX is the last innate R wave, qrs_w is the width of the qrs complex
+              
+        if ( VPULSEX > RPULSEX + qrs_w) {
+            vr = graphVResponse(x, VPULSEX+1, 0.5*dx3ps); 
         }
         
         
@@ -401,9 +404,9 @@ function graphY(x: number, hr_graph: GraphMonitor) {
 /* Pacer signals */
 function graphVResponse(x: number, xi:number, rate_dx: number): number {
     const r_h = -50, 
-        r_w = 0.04*rate_dx,
+        r_w = 0.05*rate_dx,
         r_i = xi;
-    const t_h = 25,
+    const t_h = 40,
         t_w = 0.08 * rate_dx,
         t_i = r_i + 2 * t_w;
     const r = Pulse(x, r_i, r_h, r_w);
